@@ -1,0 +1,19 @@
+name: Issue Game
+
+on:
+  issues:
+    types:
+      - opened
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  issue-game:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Issue Game Action
+        uses: ./
