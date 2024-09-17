@@ -1,6 +1,6 @@
 # Issue Game
 
-**这是一个可以在 GitHub Issue 上玩的游戏的 Action 项目**
+**这是一个可以在 GitHub Issue 上玩游戏的 Action 项目**
 
 [中文](README_ZH.md) | [English](README.md)
 
