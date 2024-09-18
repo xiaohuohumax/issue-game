@@ -132,7 +132,7 @@ export class TicTacToeGame extends Game {
     }
 
     const result_line = this.getChessResult(meta);
-    if (result_line) {
+    if (result_line !== '') {
       lines.push(`\n\`Result\`: ${result_line}`);
     }
 

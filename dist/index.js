@@ -31127,20 +31127,23 @@ class GameManager {
     injectGames(games) {
         this.games = this.games.concat(games);
     }
-    async handleIssueCreatedEvent() {
-        for (const game of this.games) {
-            await game.handleIssueCreatedEvent();
-        }
-    }
-    async handleIssueCommentCreatedEvent() {
+    async handleAction() {
+        const eventName = github.context.eventName;
         const issue = github.context.payload.issue;
         if (!issue) {
             return;
         }
-        const labels = issue.labels.map((label) => label.name);
-        for (const game of this.games) {
-            if (labels.includes(game.options.room_label.name)) {
-                await game.handleIssueCommentCreatedEvent();
+        if (eventName === 'issue_comment' && !github.context.payload.pull_request) {
+            const labels = issue.labels.map((label) => label.name);
+            for (const game of this.games) {
+                if (labels.includes(game.options.label.name)) {
+                    await game.handleIssueCommentCreatedEvent(issue);
+                }
+            }
+        }
+        else if (eventName === 'issues' && github.context.payload.action === 'opened') {
+            for (const game of this.games) {
+                await game.handleIssueCreatedEvent(issue);
             }
         }
     }
@@ -31203,11 +31206,7 @@ async function createComment(params) {
     return data;
 }
 
-;// CONCATENATED MODULE: ./src/game/module/tic-tac-toe.ts
-
-
-
-
+;// CONCATENATED MODULE: ./src/game/chess.ts
 const chess_emojis = [
     ':black_circle:',
     ':white_circle:',
@@ -31218,6 +31217,24 @@ const chess_emojis = [
     ':orange_circle:',
     ':red_circle:'
 ];
+
+;// CONCATENATED MODULE: ./src/error.ts
+class IGError extends Error {
+}
+class ReplyCommentError extends IGError {
+    options;
+    constructor(options) {
+        super(options.msg);
+        this.options = options;
+    }
+}
+
+;// CONCATENATED MODULE: ./src/game/module/tic-tac-toe.ts
+
+
+
+
+
 class TicTacToeGame extends Game {
     win_coordinates_map = [
         // 横向
@@ -31253,65 +31270,63 @@ class TicTacToeGame extends Game {
             : '';
     }
     getNextPlayer(meta) {
-        if (meta.steps.length < 2) {
+        const players = this.getPlayers(meta);
+        if (players.length < 2 || meta.steps.length < 2) {
             return null;
         }
         const last_step = meta.steps[meta.steps.length - 1];
-        const last_player = meta.player.find(player => player?.login === last_step.login);
-        const next_player_index = (meta.player.indexOf(last_player) + 1) % meta.player.length;
-        return meta.player[next_player_index];
+        const player = players.pop();
+        return player.login === last_step.login
+            ? players[0]
+            : player;
     }
     createGameBody(meta) {
-        const chess_emojis = meta.player
-            .filter(player => player)
-            .reduce((acc, player) => {
-            acc[player.login] = player.chess_emoji;
-            return acc;
-        }, {});
+        const chess_emoji_map = new Map();
+        this.getPlayers(meta).forEach(player => {
+            chess_emoji_map.set(player.login, player.chess_emoji);
+        });
         function getEmoji(x, y) {
-            const login = meta.data[x][y];
-            if (!login) {
-                return '';
-            }
-            return chess_emojis[login];
+            const login = meta.data[x][y] || '';
+            return chess_emoji_map.get(login) || '';
         }
         const player_line = meta.player.map(player => player
             ? `[${player.login}](${player.html_url}) ${player.chess_emoji}`
             : '_').join(' vs ');
-        const next_player = this.getNextPlayer(meta);
         const lines = [
             `<!-- ${JSON.stringify(meta)} -->`,
             `# Welcome to the ${this.options.name} game!`,
             'Submit your chess piece coordinates in the comments of this issue to start the game.',
             '*e.g. `chess:1:a` or `chess:a:1` means the first row and first column.*',
-            '',
-            `\`Status\`: ${meta.status}`,
+            `\n\`Status\`: ${meta.status}`,
             `\`Player\`: ${player_line}`,
-            `\`Next\`: ${next_player ? `[${next_player.login}](${next_player.html_url}) ${next_player.chess_emoji}` : ''}`,
-            '',
-            '|+|a|b|c|',
-            '|:--:|:--:|:--:|:--:|',
-            `|1|${getEmoji(0, 0)}|${getEmoji(0, 1)}|${getEmoji(0, 2)}|`,
-            `|2|${getEmoji(1, 0)}|${getEmoji(1, 1)}|${getEmoji(1, 2)}|`,
-            `|3|${getEmoji(2, 0)}|${getEmoji(2, 1)}|${getEmoji(2, 2)}|`,
-            '',
-            '`Steps`:',
-            ...meta.steps.map(step => {
-                const { login, coordinates } = step;
-                const emoji = chess_emojis[login];
-                return `+ ${emoji} [${coordinates.ox}:${coordinates.oy} ${step.login}](${step.issue_comment_url})`;
-            }),
-            '',
-            `\`Result\`: ${this.getChessResult(meta)}`,
         ];
+        const next_player = this.getNextPlayer(meta);
+        if (next_player) {
+            lines.push(`\`Next\`: ${next_player ? `[${next_player.login}](${next_player.html_url}) ${next_player.chess_emoji}` : ''}`);
+        }
+        lines.push('\n|+|a|b|c|', '|:--:|:--:|:--:|:--:|', `|1|${getEmoji(0, 0)}|${getEmoji(0, 1)}|${getEmoji(0, 2)}|`, `|2|${getEmoji(1, 0)}|${getEmoji(1, 1)}|${getEmoji(1, 2)}|`, `|3|${getEmoji(2, 0)}|${getEmoji(2, 1)}|${getEmoji(2, 2)}|`);
+        if (meta.steps.length > 0) {
+            lines.push('\n`Steps`:', ...meta.steps.map(step => {
+                const { login, coordinates, comment_url } = step;
+                const emoji = chess_emoji_map.get(login);
+                return `+ ${emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${comment_url})`;
+            }));
+        }
+        const result_line = this.getChessResult(meta);
+        if (result_line !== '') {
+            lines.push(`\n\`Result\`: ${result_line}`);
+        }
         return lines.join('\n');
+    }
+    getPlayers(meta) {
+        return meta.player.filter(player => player);
     }
     getIssueTitle(meta) {
         const title_blocks = [
             `\`${this.options.name}\``,
             `\`${meta.status}\``,
         ];
-        const players = meta.player.filter(player => player);
+        const players = this.getPlayers(meta);
         if (players.length === 2) {
             title_blocks.push(`\`${players[0].login} vs ${players[1].login}\``);
             if (meta.winner) {
@@ -31320,140 +31335,124 @@ class TicTacToeGame extends Game {
         }
         return `:chess_pawn: ${title_blocks.join(' ')}`;
     }
-    getChessMeta(issue_body) {
-        const meta_match = issue_body.match(/<!--\s*(\{.*\})\s*-->/);
+    getChessMeta() {
+        const { body } = github.context.payload.comment;
+        if (!body) {
+            return null;
+        }
+        const meta_match = body.match(/<!--\s*(\{.*\})\s*-->/);
         if (!meta_match) {
             throw new Error('Invalid issue body');
         }
-        const meta_str = meta_match[1];
-        const meta = JSON.parse(meta_str);
-        return meta;
+        return JSON.parse(meta_match[1]);
     }
     getChessPieceCoordinates(comment_body) {
         const chess_regex = /^chess:(([1-3]:[a-c])|([a-c]:[1-3]))/ig;
         const chess_match = chess_regex.exec(comment_body);
-        const row_letters = ['a', 'b', 'c'];
         if (chess_match) {
-            const [x, y] = chess_match[1].toLocaleLowerCase().split(':');
-            const int_x = parseInt(x, 10);
-            const int_y = parseInt(y, 10);
-            if (!isNaN(int_x) && isNaN(int_y)) {
-                return { x: int_x - 1, y: row_letters.indexOf(y), ox: x, oy: y };
+            const row_letters = ['a', 'b', 'c'];
+            let [x, y] = chess_match[1].toLocaleLowerCase().split(':');
+            let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
+            if (isNaN(int_x) && !isNaN(int_y)) {
+                [int_x, int_y] = [int_y, int_x];
+                [x, y] = [y, x];
             }
-            else {
-                return { x: int_y - 1, y: row_letters.indexOf(x), ox: y, oy: x };
-            }
+            return { x: int_x - 1, y: row_letters.indexOf(y), ox: x, oy: y };
         }
         return null;
     }
     getChessWinner(meta) {
-        for (const win of this.win_coordinates_map) {
-            const [x, y, z] = win;
-            const [a, b, c] = [meta.data[x.x][x.y], meta.data[y.x][y.y], meta.data[z.x][z.y]];
-            if (a && a === b && b === c) {
-                return meta.player.find(player => player?.login === a) || null;
+        for (const [c1, c2, c3] of this.win_coordinates_map) {
+            const [l1, l2, l3] = [meta.data[c1.x][c1.y], meta.data[c2.x][c2.y], meta.data[c3.x][c3.y]];
+            if (l1 && l1 === l2 && l2 === l3) {
+                return meta.player.find(player => player?.login === l1) || null;
             }
         }
-        const all_filled = meta.data.every(row => row.every(cell => cell));
-        if (all_filled) {
-            return 'tie';
-        }
-        return null;
+        const empty_cells = meta.data.flat().filter(cell => !cell);
+        return empty_cells.length === 0 ? 'tie' : null;
     }
-    loadRandomChessEmoji(meta) {
-        const used_emojis = meta.player.filter(player => player).map(player => player.chess_emoji);
+    getRandomChessEmoji(meta) {
+        const used_emojis = this.getPlayers(meta).map(player => player.chess_emoji);
         const unused_emojis = chess_emojis.filter(emoji => !used_emojis.includes(emoji));
         return unused_emojis[Math.floor(Math.random() * unused_emojis.length)];
     }
     async initGameRooms() {
         const meta = this.createInitChessMeta();
-        const params = {
+        return await createIssue({
             title: this.getIssueTitle(meta),
             body: this.createGameBody(meta),
-            labels: [this.options.room_label]
-        };
-        return await createIssue(params);
+            labels: [this.options.label]
+        });
     }
-    async handleIssueCreatedEvent() {
-        const { title, number: issue_number } = github.context.payload.issue;
-        const title_match = title.match(new RegExp(this.options.init_pattern, 'ig'));
-        if (!title_match) {
+    throwReplyCommentError(issue_number, msg) {
+        throw new ReplyCommentError({
+            msg,
+            issue_number,
+            msg_type: 'error',
+            comment: github.context.payload.comment
+        });
+    }
+    async handleChessPieceMove(issue_number, meta) {
+        const { id, html_url, body, user: { login, html_url: comment_html_url } } = github.context.payload.comment;
+        const coordinates = this.getChessPieceCoordinates(body);
+        if (!coordinates) {
             return;
         }
-        const game_issue = await this.initGameRooms();
-        await createComment({
-            issue_number,
-            body: `Game room created: [${game_issue.title}](${game_issue.html_url}) click to join.`
+        const player_count = this.getPlayers(meta).length;
+        let player_index = meta.player.findIndex(player => player?.login === login);
+        if (player_count < 2 && player_index === -1) {
+            player_index = player_count;
+            meta.player[player_index] = {
+                login: login,
+                html_url: comment_html_url,
+                chess_emoji: this.getRandomChessEmoji(meta)
+            };
+        }
+        if (player_index === -1) {
+            this.throwReplyCommentError(issue_number, 'Game room is full, cannot join!');
+        }
+        const last_step = meta.steps[meta.steps.length - 1];
+        if (last_step && last_step.login === login) {
+            this.throwReplyCommentError(issue_number, `You have already placed chess piece at ${last_step.coordinates.ox},${last_step.coordinates.oy}, please wait for your opponent's move.`);
+        }
+        const before_login = meta.data[coordinates.x][coordinates.y];
+        if (before_login) {
+            this.throwReplyCommentError(issue_number, `${coordinates.ox},${coordinates.oy} already has a chess piece by ${before_login}, please choose another position.`);
+        }
+        meta.steps.push({
+            login: login,
+            coordinates,
+            comment_id: id,
+            comment_url: html_url
         });
-        await updateIssue({
-            issue_number,
-            state: 'closed'
-        });
+        meta.data[coordinates.x][coordinates.y] = meta.player[player_index].login;
+        meta.winner = this.getChessWinner(meta);
     }
-    async handleIssueCommentCreatedEvent() {
-        const { body, number: issue_number } = github.context.payload.issue;
+    async handleIssueCreatedEvent({ title, number: issue_number }) {
+        const title_match = title.match(new RegExp(this.options.init_pattern, 'ig'));
+        if (title_match) {
+            const game_issue = await this.initGameRooms();
+            await createComment({
+                issue_number,
+                body: `Game room created: [${game_issue.title}](${game_issue.html_url}) click to join.`
+            });
+            await updateIssue({ issue_number, state: 'closed' });
+        }
+    }
+    async handleIssueCommentCreatedEvent({ body, number: issue_number }) {
         if (!body) {
             return;
         }
-        const { id: comment_id, html_url: comment_url, body: comment_body, user: { login: comment_user_login, html_url: comment_html_url } } = github.context.payload.comment;
-        if (!comment_body) {
+        const meta = this.getChessMeta();
+        if (!meta) {
             return;
         }
-        async function replyWarningMessage(message) {
-            const msg = [
-                `@${comment_user_login} Reply: [${comment_id}](${comment_url})`,
-                '',
-                comment_body.split('\n').map(line => `> ${line}`).join('\n'),
-                '',
-                `Error: *${message}*`,
-            ].join('\n');
-            core.warning(msg);
-            await createComment({
-                issue_number,
-                body: msg
-            });
-        }
-        const meta = this.getChessMeta(body);
         if (meta.status === 'End') {
-            return await replyWarningMessage('Game has ended!');
+            this.throwReplyCommentError(issue_number, 'Game has ended!');
         }
-        const coordinates = this.getChessPieceCoordinates(comment_body);
-        if (coordinates) {
-            const player_count = meta.player.filter(player => player).length;
-            let player_index = meta.player.findIndex(player => player?.login === comment_user_login);
-            if (player_count < 2 && player_index === -1) {
-                player_index = player_count;
-                meta.player[player_index] = {
-                    login: comment_user_login,
-                    html_url: comment_html_url,
-                    chess_emoji: this.loadRandomChessEmoji(meta)
-                };
-            }
-            if (player_index === -1) {
-                return await replyWarningMessage('Game room is full, cannot join!');
-            }
-            const last_step = meta.steps[meta.steps.length - 1];
-            if (last_step && last_step.login === comment_user_login) {
-                return await replyWarningMessage(`You have already placed chess piece at ${last_step.coordinates.ox},${last_step.coordinates.oy}, please wait for your opponent's move.`);
-            }
-            meta.steps.push({
-                login: comment_user_login,
-                coordinates,
-                issue_comment_id: comment_id,
-                issue_comment_url: comment_url
-            });
-            const player = meta.player[player_index];
-            const before_login = meta.data[coordinates.x][coordinates.y];
-            if (before_login) {
-                return await replyWarningMessage(`${coordinates.ox},${coordinates.oy} already has a chess piece by ${before_login}, please choose another position.`);
-            }
-            meta.data[coordinates.x][coordinates.y] = player.login;
-            const winner = this.getChessWinner(meta);
-            if (winner) {
-                meta.winner = winner;
-            }
-        }
-        const player_count = meta.player.filter(player => player).length;
+        // handle chess piece move
+        await this.handleChessPieceMove(issue_number, meta);
+        const player_count = this.getPlayers(meta).length;
         if (player_count === 0) {
             meta.status = 'Empty';
         }
@@ -31465,14 +31464,15 @@ class TicTacToeGame extends Game {
         }
         if (meta.winner) {
             meta.status = 'End';
+            const call_players = this.getPlayers(meta).map(player => '@' + player.login).join(' ');
             await createComment({
                 issue_number,
-                body: `${meta.player.map(player => `@${player?.login}`).join(' ')}: ${this.getChessResult(meta)}\nGame over!`
+                body: `${call_players}: ${this.getChessResult(meta)}\nGame over!`
             });
         }
         await updateIssue({
             title: this.getIssueTitle(meta),
-            issue_number: issue_number,
+            issue_number,
             body: this.createGameBody(meta),
             state: meta.winner ? 'closed' : 'open'
         });
@@ -31488,11 +31488,12 @@ class TicTacToeGame extends Game {
 
 
 
+
 const manager = new GameManager({});
 manager.injectGames([
     new TicTacToeGame({
         name: 'TicTacToe',
-        room_label: {
+        label: {
             name: src_config.ttt_label_name,
             color: src_config.ttt_label_color,
             description: src_config.ttt_label_description,
@@ -31500,16 +31501,29 @@ manager.injectGames([
         init_pattern: src_config.ttt_init_pattern,
     })
 ]);
-async function run() {
-    const eventName = github.context.eventName;
-    if (eventName === 'issue_comment' && !github.context.payload.pull_request) {
-        manager.handleIssueCommentCreatedEvent();
+async function catch_error(error) {
+    if (error instanceof ReplyCommentError) {
+        const { msg_type, issue_number, comment } = error.options;
+        let msg = `${msg_type.toUpperCase()}: _${error.message}_`;
+        if (comment) {
+            const { id, html_url, body, user } = comment;
+            const body_line = (body || '')
+                .split('\n')
+                .map(line => '> ' + line)
+                .join('\n');
+            msg = `@${user.login} Reply: [${id}](${html_url} "Click to view the comment")\n${body_line}\n${msg}`;
+        }
+        core[msg_type](msg);
+        await createComment({
+            issue_number: issue_number,
+            body: msg,
+        });
+        return;
     }
-    else if (eventName === 'issues' && github.context.payload.action === 'opened') {
-        manager.handleIssueCreatedEvent();
-    }
+    core.setFailed(error.message);
 }
-run().catch(core.setFailed);
+manager.handleAction().catch(catch_error);
+window.onunhandledrejection = event => catch_error(event.reason);
 
 })();
 

@@ -7,7 +7,7 @@
     "dist": "dotenv -e .env -- node dist/index.js",
     "dist:local": "dotenv -e .env.local -- node dist/index.js",
     "bundle": "npm run lint:fix && npm run package",
-    "commit": "git add . && cz",
+    "commit": "npm run bundle && git add . && cz",
     "package": "npx ncc build src/index.ts -o dist --source-map --license licenses.txt",
     "package:watch": "npm run package -- --watch",
     "postinstall": "simple-git-hooks",
