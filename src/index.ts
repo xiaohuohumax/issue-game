@@ -43,4 +43,4 @@ async function catch_error(error: Error) {
 }
 
 manager.handleAction().catch(catch_error);
-window.onunhandledrejection = event => catch_error(event.reason);
+process.on('unhandledRejection', reason => catch_error(reason as Error));

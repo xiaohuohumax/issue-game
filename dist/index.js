@@ -31523,7 +31523,7 @@ async function catch_error(error) {
     core.setFailed(error.message);
 }
 manager.handleAction().catch(catch_error);
-window.onunhandledrejection = event => catch_error(event.reason);
+process.on('unhandledRejection', reason => catch_error(reason));
 
 })();
 
