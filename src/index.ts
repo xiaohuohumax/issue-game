@@ -39,7 +39,7 @@ async function catch_error(error: Error) {
     });
     return;
   }
-  core.setFailed(error.message);
+  core.setFailed(error);
 }
 
 manager.handleAction().catch(catch_error);

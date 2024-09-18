@@ -31335,12 +31335,11 @@ class TicTacToeGame extends Game {
         }
         return `:chess_pawn: ${title_blocks.join(' ')}`;
     }
-    getChessMeta() {
-        const { body } = github.context.payload.comment;
-        if (!body) {
+    getChessMeta(issue_body) {
+        if (!issue_body) {
             return null;
         }
-        const meta_match = body.match(/<!--\s*(\{.*\})\s*-->/);
+        const meta_match = issue_body.match(/<!--\s*(\{.*\})\s*-->/);
         if (!meta_match) {
             throw new Error('Invalid issue body');
         }
@@ -31443,7 +31442,7 @@ class TicTacToeGame extends Game {
         if (!body) {
             return;
         }
-        const meta = this.getChessMeta();
+        const meta = this.getChessMeta(body);
         if (!meta) {
             return;
         }
@@ -31520,7 +31519,7 @@ async function catch_error(error) {
         });
         return;
     }
-    core.setFailed(error.message);
+    core.setFailed(error);
 }
 manager.handleAction().catch(catch_error);
 process.on('unhandledRejection', reason => catch_error(reason));
