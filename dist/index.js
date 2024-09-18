@@ -31396,8 +31396,11 @@ class TicTacToeRoom extends Room {
         const body_lines = [
             `<!-- ${JSON.stringify(this.meta)} -->`,
             `# Welcome to the ${this.options.name} game!`,
-            'Submit your chess piece coordinates in the comments of this issue to start the game.',
-            '*e.g. `chess:1:a` or `chess:a:1` means the first row and first column.*',
+            '**Use the following commands in the comments of this issue to play the game:**',
+            '- `chess:x:y` to place your chess piece at position x,y',
+            '  _e.g. `chess:1:a` or `chess:a:1` means the first row and first column._',
+            '- `color:color_name` to change your chess piece color, available colors:' + CHESS_COLORS.map(c => `\`${c}\``).join(', '),
+            '  _e.g. `color:red` to change your chess piece to red color._',
             `\n\`Status\`: ${this.meta.status}`,
             `\`Player\`: ${player_line}`,
         ];
@@ -31432,6 +31435,7 @@ class TicTacToeRoom extends Room {
             const [l1, l2, l3] = [data[c1.x][c1.y], data[c2.x][c2.y], data[c3.x][c3.y]];
             if (l1 && l1 === l2 && l2 === l3) {
                 this.meta.winner = this.getPlayerByLogin(l1);
+                return;
             }
         }
         const empty_cells = this.meta.data.flat().filter(cell => !cell);
@@ -31487,7 +31491,8 @@ class TicTacToeRoom extends Room {
         if (CHESS_COLORS.includes(color)) {
             const player_chess_colors = this.meta.players.map(p => p.chess_color);
             if (player_chess_colors.includes(color)) {
-                throwReplyMessageError(issue_number, comment, `${color} chess piece has been used, please choose another color.\ne.g. ${CHESS_COLORS.join(', ')}`);
+                const eg = CHESS_COLORS.map(c => `\`${c}\``).join(', ');
+                throwReplyMessageError(issue_number, comment, `\`${color}\` chess piece has been used, please choose another color.\ne.g. ${eg}`);
             }
             player.chess_color = color;
         }
