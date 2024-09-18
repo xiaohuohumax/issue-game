@@ -6,6 +6,8 @@
 
 ## 🎮 开始游玩
 
+点击下面的链接，即可开始游戏：
+
 + [井字棋](https://github.com/xiaohuohumax/issue-game/issues/new?title=Play%20Tic-Tac-Toe&body=Do%20not%20modify%20the%20Issue%20title,%20just%20submit%20it%20directly. '点击此处创建房间，开始游戏')
 
 ## 📖 使用方法
@@ -34,11 +36,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Issue Game Action
-        uses: xiaohuohumax/Issue-game
+        uses: xiaohuohumax/issue-game
           # with:
           #   token: ${{ secrets.GITHUB_TOKEN }}
           #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
-          #   ttt-label: "game-ttt-room"
+          #   ttt-label-prefix: "game-ttt-room-"
 ```
 
 ## ⚙ 使用参数
@@ -47,4 +49,4 @@ jobs:
 | ------------------------- | ------ | ----------------------------------- | -------------------------------- |
 | `token`                   | string | 用于身份验证的 GitHub 令牌          | {{ github.token }}               |
 | `ttt-issue-title-pattern` | string | 井字棋游戏：创建房间 Issue 标题正则 | "^play\\s+tic[-\_]?tac[-\_]?toe" |
-| `ttt-label`               | string | 井字棋游戏：issue 标签名称          | "game-ttt-room"                  |
+| `ttt-label-prefix`        | string | 井字棋游戏：issue 标签名称前缀      | "game-ttt-room-"                 |

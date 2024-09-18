@@ -19,13 +19,8 @@ export const CHESS_COLORS: ChessColor[] = [
 ];
 
 export function chessColorToEmoji(color?: ChessColor): string {
-  if (!color) {
-    return '';
-  }
-  return `:${color}_circle:`;
+  return color ? `:${color}_circle:` : '';
 }
-
-export type ChessPieceEmoji = `${ChessColor}`;
 
 export type ArrayLength<T, S extends number> = Array<T> & { length: S };
 

@@ -6,6 +6,8 @@
 
 ## 🎮 Game play
 
+Click the following link to start the game:
+
 + [Tic-Tac-Toe](https://github.com/xiaohuohumax/issue-game/issues/new?title=Play%20Tic-Tac-Toe&body=Do%20not%20modify%20the%20Issue%20title,%20just%20submit%20it%20directly. 'Click here to create a room and start the game')
 
 ## 📖 Usage
@@ -34,11 +36,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Issue Game Action
-        uses: xiaohuohumax/Issue-game
+        uses: xiaohuohumax/issue-game
           # with:
           #   token: ${{ secrets.GITHUB_TOKEN }}
           #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
-          #   ttt-label: "game-ttt-room"
+          #   ttt-label-prefix: "game-ttt-room-"
 ```
 
 ## ⚙ Parameters
@@ -47,5 +49,5 @@ jobs:
 | ------------------------- | ------ | ----------------------------------------------------- | -------------------------------- |
 | `token`                   | string | GitHub token for authentication                       | {{ github.token }}               |
 | `ttt-issue-title-pattern` | string | Tic-Tac-Toe game: regex for creating room Issue title | "^play\\s+tic[-\_]?tac[-\_]?toe" |
-| `ttt-label`               | string | Tic-Tac-Toe game: issue label name                    | "game-ttt-room"                  |
+| `ttt-label-prefix`        | string | Tic-Tac-Toe game: issue label name prefix             | "game-ttt-room-"                 |
 

@@ -11,10 +11,10 @@ inputs:
     required: false
     description: "Tic-Tac-Toe game: create room issue title pattern"
     default: "^play\\s+tic[-_]?tac[-_]?toe"
-  ttt-label:
+  ttt-label-prefix:
     required: false
-    description: "Tic-Tac-Toe game: issue label name"
-    default: "game-ttt-room"
+    description: "Tic-Tac-Toe game: issue label name prefix"
+    default: "game-ttt-room-"
 
 runs:
   using: "node20"

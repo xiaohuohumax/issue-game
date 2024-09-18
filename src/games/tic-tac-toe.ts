@@ -3,7 +3,7 @@ import {
 } from '@octokit/webhooks-definitions/schema';
 import { Meta, Game, Room, GameOptions, RoomOptions } from '../game';
 import {
-  ArrayLength, ArrayTable, ChessColor, Coordinates,
+  ArrayTable, ChessColor, Coordinates,
   CoordinatesWithOrigin, CHESS_COLORS, chessColorToEmoji
 } from '../chess';
 import issue_api from '../api/issue';
@@ -54,7 +54,7 @@ function throwReplyMessageError(issue_number: number, comment: IssueCommentCreat
   });
 }
 
-const WIN_MAP: ArrayLength<ArrayLength<Coordinates, 3>, 8> = [
+const WIN_MAP: ArrayTable<Coordinates, 3, 8> = [
   // rows
   [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }],
   [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
@@ -144,7 +144,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       const last_player_index = players.findIndex(player => player.login === last_step.login);
       return players[(last_player_index + 1) % players.length];
     } else {
-      return players[0];
+      return null;
     }
   }
 
@@ -265,13 +265,13 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       if (this.meta.players.length >= 2) {
         throwReplyMessageError(issue_number, comment, 'Game room is full, cannot join!');
       }
-      const p: MetaPlayer = {
+      const new_player: MetaPlayer = {
         login: comment.user.login,
         url: comment.user.html_url,
         chess_color: TicTacToeRoom.getRandomChessColor(this.meta.players.map(p => p.chess_color))
       };
-      this.meta.players.push(p);
-      player = p;
+      this.meta.players.push(new_player);
+      player = new_player;
     }
 
     const last_step = this.meta.steps[this.meta.steps.length - 1];

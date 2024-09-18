@@ -12,12 +12,12 @@
     "package:watch": "npm run package -- --watch",
     "postinstall": "simple-git-hooks",
     "changeset": "changeset",
-    "lint:fix": "eslint --ext .ts src --fix",
-    "release": "npm run build && changeset publish"
+    "lint:fix": "eslint --ext .ts src --fix"
   },
   "keywords": [
     "issue",
-    "game"
+    "game",
+    "tic-tac-toe"
   ],
   "exports": {
     ".": "./dist/index.js"

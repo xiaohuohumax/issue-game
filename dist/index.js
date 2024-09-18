@@ -31161,10 +31161,7 @@ const CHESS_COLORS = [
     'red'
 ];
 function chessColorToEmoji(color) {
-    if (!color) {
-        return '';
-    }
-    return `:${color}_circle:`;
+    return color ? `:${color}_circle:` : '';
 }
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
@@ -31174,7 +31171,7 @@ var core = __nccwpck_require__(2186);
 const input = {
     token: core.getInput('token', { required: true }),
     ttt_issue_title_pattern: core.getInput('ttt-issue-title-pattern', { required: true }),
-    ttt_label: core.getInput('ttt-label', { required: true }),
+    ttt_label_prefix: core.getInput('ttt-label-prefix', { required: true }),
 };
 /* harmony default export */ const src_input = (input);
 
@@ -31353,7 +31350,7 @@ class TicTacToeRoom extends Room {
             return players[(last_player_index + 1) % players.length];
         }
         else {
-            return players[0];
+            return null;
         }
     }
     getLoginChessColorMap() {
@@ -31451,13 +31448,13 @@ class TicTacToeRoom extends Room {
             if (this.meta.players.length >= 2) {
                 throwReplyMessageError(issue_number, comment, 'Game room is full, cannot join!');
             }
-            const p = {
+            const new_player = {
                 login: comment.user.login,
                 url: comment.user.html_url,
                 chess_color: TicTacToeRoom.getRandomChessColor(this.meta.players.map(p => p.chess_color))
             };
-            this.meta.players.push(p);
-            player = p;
+            this.meta.players.push(new_player);
+            player = new_player;
         }
         const last_step = this.meta.steps[this.meta.steps.length - 1];
         if (last_step && last_step.login === player.login) {
@@ -31575,16 +31572,20 @@ class TicTacToeGame extends Game {
 ;// CONCATENATED MODULE: ./src/games/index.ts
 
 
+;// CONCATENATED MODULE: ./package.json
+const package_namespaceObject = {"i8":"0.0.1"};
 ;// CONCATENATED MODULE: ./src/index.ts
 
 
 
 
+
+const major_version = package_namespaceObject.i8.split('.')[0];
 const manager = new GameManager({});
 manager.addGame(new TicTacToeGame({
     name: 'TicTacToe',
     description: 'Tic-Tac-Toe game',
-    label: src_input.ttt_label,
+    label: src_input.ttt_label_prefix + 'v' + major_version,
     issue_title_pattern: src_input.ttt_issue_title_pattern
 }));
 manager.handleAction().catch(catchError);
