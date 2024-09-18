@@ -1,17 +1,14 @@
 import { components } from '@octokit/openapi-types';
-import { RestEndpointMethodTypes } from '@octokit/plugin-rest-endpoint-methods';
 import * as github from '@actions/github';
-import config from '../config';
-
-const { owner, repo } = github.context.repo;
-const octokit = github.getOctokit(config.token);
+import input from '../input';
 
 export type Issue = components['schemas']['issue'];
+export type IssueComment = components['schemas']['issue-comment'];
 
 export interface CreateIssueParams {
   title: string;
   body: string;
-  labels: RestEndpointMethodTypes['issues']['create']['parameters']['labels'];
+  labels: string[];
 }
 
 export type UpdateIssueParams = Partial<CreateIssueParams> & {
@@ -19,52 +16,53 @@ export type UpdateIssueParams = Partial<CreateIssueParams> & {
   state?: 'open' | 'closed';
 };
 
-export async function updateIssue(params: UpdateIssueParams): Promise<Issue> {
-  const { status, data } = await octokit.rest.issues.update({
-    owner,
-    repo,
-    issue_number: params.issue_number,
-    title: params.title,
-    body: params.body,
-    labels: params.labels,
-    state: params.state,
-  });
-  if (status !== 200) {
-    throw new Error('Failed to update issue');
-  }
-  return data;
-}
-
-export async function createIssue(params: CreateIssueParams): Promise<Issue> {
-  const { status, data } = await octokit.rest.issues.create({
-    owner,
-    repo,
-    title: params.title,
-    body: params.body,
-    labels: params.labels,
-  });
-  if (status !== 201) {
-    throw new Error('Failed to create issue');
-  }
-  return data;
-}
-
-export type IssueComment = components['schemas']['issue-comment'];
-
 export interface CreateCommentParams {
   issue_number: number;
   body: string;
 }
 
-export async function createComment(params: CreateCommentParams): Promise<IssueComment> {
-  const { status, data } = await octokit.rest.issues.createComment({
-    owner,
-    repo,
-    issue_number: params.issue_number,
-    body: params.body,
-  });
-  if (status !== 201) {
-    throw new Error('Failed to create comment');
+export class IssueApi {
+  public octokit: ReturnType<typeof github.getOctokit>;
+  constructor(public owner: string, public repo: string, public token: string) {
+    this.octokit = github.getOctokit(this.token);
   }
-  return data;
-}    
+
+  public async updateIssue(params: UpdateIssueParams): Promise<Issue> {
+    const { status, data } = await this.octokit.rest.issues.update({
+      owner: this.owner,
+      repo: this.repo,
+      ...params
+    });
+    if (status !== 200) {
+      throw new Error('Failed to update issue');
+    }
+    return data;
+  }
+
+  public async createIssue(params: CreateIssueParams): Promise<Issue> {
+    const { status, data } = await this.octokit.rest.issues.create({
+      owner: this.owner,
+      repo: this.repo,
+      ...params
+    });
+    if (status !== 201) {
+      throw new Error('Failed to create issue');
+    }
+    return data;
+  }
+
+  public async createComment(params: CreateCommentParams): Promise<IssueComment> {
+    const { status, data } = await this.octokit.rest.issues.createComment({
+      owner: this.owner,
+      repo: this.repo,
+      ...params
+    });
+    if (status !== 201) {
+      throw new Error('Failed to create comment');
+    }
+    return data;
+  }
+}
+
+const { owner, repo } = github.context.repo;
+export default new IssueApi(owner, repo, input.token);

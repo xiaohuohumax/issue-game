@@ -31106,12 +31106,18 @@ var __webpack_exports__ = {};
 // ESM COMPAT FLAG
 __nccwpck_require__.r(__webpack_exports__);
 
-// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
-var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
-;// CONCATENATED MODULE: ./src/game/game.ts
+;// CONCATENATED MODULE: ./src/game.ts
 
+class Room {
+    meta;
+    options;
+    constructor(meta, options) {
+        this.meta = meta;
+        this.options = options;
+    }
+}
 class Game {
     options;
     constructor(options) {
@@ -31124,229 +31130,198 @@ class GameManager {
     constructor(options) {
         this.options = options;
     }
-    injectGames(games) {
-        this.games = this.games.concat(games);
+    addGame(game) {
+        this.games.push(game);
     }
     async handleAction() {
-        const eventName = github.context.eventName;
-        const issue = github.context.payload.issue;
-        if (!issue) {
-            return;
-        }
-        if (eventName === 'issue_comment' && !github.context.payload.pull_request) {
-            const labels = issue.labels.map((label) => label.name);
+        const payload = github.context.payload;
+        const event_name = github.context.eventName;
+        if (event_name === 'issues' && payload.action === 'opened') {
             for (const game of this.games) {
-                if (labels.includes(game.options.label.name)) {
-                    await game.handleIssueCommentCreatedEvent(issue);
-                }
+                await game.handleIssueOpenedEvent(payload);
             }
         }
-        else if (eventName === 'issues' && github.context.payload.action === 'opened') {
+        else if (event_name === 'issue_comment' && !payload.pull_request) {
             for (const game of this.games) {
-                await game.handleIssueCreatedEvent(issue);
+                await game.handleIssueCommentCreatedEvent(payload);
             }
         }
     }
 }
 
-;// CONCATENATED MODULE: ./src/config.ts
+;// CONCATENATED MODULE: ./src/chess.ts
+const CHESS_COLORS = [
+    'black',
+    'white',
+    'brown',
+    'purple',
+    'green',
+    'yellow',
+    'orange',
+    'red'
+];
+function chessColorToEmoji(color) {
+    if (!color) {
+        return '';
+    }
+    return `:${color}_circle:`;
+}
 
-const config = {
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(2186);
+;// CONCATENATED MODULE: ./src/input.ts
+
+const input = {
     token: core.getInput('token', { required: true }),
-    ttt_init_pattern: core.getInput('ttt-init-pattern', { required: false }),
-    ttt_label_name: core.getInput('ttt-label-name', { required: false }),
-    ttt_label_color: core.getInput('ttt-label-color', { required: false }),
-    ttt_label_description: core.getInput('ttt-label-description', { required: false }),
+    ttt_issue_title_pattern: core.getInput('ttt-issue-title-pattern', { required: true }),
+    ttt_label: core.getInput('ttt-label', { required: true }),
 };
-/* harmony default export */ const src_config = (config);
+/* harmony default export */ const src_input = (input);
 
 ;// CONCATENATED MODULE: ./src/api/issue.ts
 
 
+class IssueApi {
+    owner;
+    repo;
+    token;
+    octokit;
+    constructor(owner, repo, token) {
+        this.owner = owner;
+        this.repo = repo;
+        this.token = token;
+        this.octokit = github.getOctokit(this.token);
+    }
+    async updateIssue(params) {
+        const { status, data } = await this.octokit.rest.issues.update({
+            owner: this.owner,
+            repo: this.repo,
+            ...params
+        });
+        if (status !== 200) {
+            throw new Error('Failed to update issue');
+        }
+        return data;
+    }
+    async createIssue(params) {
+        const { status, data } = await this.octokit.rest.issues.create({
+            owner: this.owner,
+            repo: this.repo,
+            ...params
+        });
+        if (status !== 201) {
+            throw new Error('Failed to create issue');
+        }
+        return data;
+    }
+    async createComment(params) {
+        const { status, data } = await this.octokit.rest.issues.createComment({
+            owner: this.owner,
+            repo: this.repo,
+            ...params
+        });
+        if (status !== 201) {
+            throw new Error('Failed to create comment');
+        }
+        return data;
+    }
+}
 const { owner, repo } = github.context.repo;
-const octokit = github.getOctokit(src_config.token);
-async function updateIssue(params) {
-    const { status, data } = await octokit.rest.issues.update({
-        owner,
-        repo,
-        issue_number: params.issue_number,
-        title: params.title,
-        body: params.body,
-        labels: params.labels,
-        state: params.state,
-    });
-    if (status !== 200) {
-        throw new Error('Failed to update issue');
-    }
-    return data;
-}
-async function createIssue(params) {
-    const { status, data } = await octokit.rest.issues.create({
-        owner,
-        repo,
-        title: params.title,
-        body: params.body,
-        labels: params.labels,
-    });
-    if (status !== 201) {
-        throw new Error('Failed to create issue');
-    }
-    return data;
-}
-async function createComment(params) {
-    const { status, data } = await octokit.rest.issues.createComment({
-        owner,
-        repo,
-        issue_number: params.issue_number,
-        body: params.body,
-    });
-    if (status !== 201) {
-        throw new Error('Failed to create comment');
-    }
-    return data;
-}
-
-;// CONCATENATED MODULE: ./src/game/chess.ts
-const chess_emojis = [
-    ':black_circle:',
-    ':white_circle:',
-    ':brown_circle:',
-    ':purple_circle:',
-    ':green_circle:',
-    ':yellow_circle:',
-    ':orange_circle:',
-    ':red_circle:'
-];
+/* harmony default export */ const issue = (new IssueApi(owner, repo, src_input.token));
 
 ;// CONCATENATED MODULE: ./src/error.ts
+
+
 class IGError extends Error {
 }
-class ReplyCommentError extends IGError {
+class ReplyMessageError extends IGError {
     options;
     constructor(options) {
-        super(options.msg);
+        super(options.message);
         this.options = options;
     }
 }
+async function catchError(error) {
+    if (!(error instanceof ReplyMessageError)) {
+        return core.setFailed(error);
+    }
+    const { reply_type, issue_number, message, target } = error.options;
+    let comment_body = `${reply_type}: ${message}`;
+    if (target) {
+        const body = target.body || '';
+        const quote_body = body.split('\n').map(line => `> ${line}`).join('\n');
+        comment_body = `@${target.login} Reply: [${target.name}](${target.url} "Click to view the comment")\n\n${quote_body}\n\n${comment_body}`;
+    }
+    await issue.createComment({
+        issue_number,
+        body: comment_body
+    });
+}
 
-;// CONCATENATED MODULE: ./src/game/module/tic-tac-toe.ts
+;// CONCATENATED MODULE: ./src/games/tic-tac-toe.ts
 
 
 
 
-
-class TicTacToeGame extends Game {
-    win_coordinates_map = [
-        // 横向
-        [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }],
-        [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
-        [{ x: 2, y: 0 }, { x: 2, y: 1 }, { x: 2, y: 2 }],
-        // 纵向
-        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }],
-        [{ x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }],
-        [{ x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
-        // 斜向
-        [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }],
-        [{ x: 0, y: 2 }, { x: 1, y: 1 }, { x: 2, y: 0 }],
-    ];
-    createInitChessMeta() {
-        return {
-            player: [null, null],
+function throwReplyMessageError(issue_number, comment, message) {
+    throw new ReplyMessageError({
+        message,
+        issue_number,
+        reply_type: 'Error',
+        target: {
+            login: comment.user.login,
+            name: 'issue-comment: ' + comment.id,
+            url: comment.html_url,
+            body: comment.body
+        }
+    });
+}
+const WIN_MAP = [
+    // rows
+    [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }],
+    [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
+    [{ x: 2, y: 0 }, { x: 2, y: 1 }, { x: 2, y: 2 }],
+    // columns
+    [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }],
+    [{ x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }],
+    [{ x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
+    // diagonals
+    [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }],
+    [{ x: 0, y: 2 }, { x: 1, y: 1 }, { x: 2, y: 0 }],
+];
+class TicTacToeRoom extends Room {
+    static createEmptyRoom(options, default_player) {
+        const meta = {
+            status: 'init',
+            players: default_player ? [default_player] : [],
             data: [
                 [null, null, null],
                 [null, null, null],
-                [null, null, null],
+                [null, null, null]
             ],
             steps: [],
-            status: 'Empty',
             winner: null,
+            create_time: new Date().toISOString(),
+            update_time: new Date().toISOString()
         };
+        return new TicTacToeRoom(meta, options);
     }
-    getChessResult(meta) {
-        return meta.winner
-            ? meta.winner === 'tie'
-                ? 'Tie'
-                : `${meta.winner.login} won`
-            : '';
-    }
-    getNextPlayer(meta) {
-        const players = this.getPlayers(meta);
-        if (players.length < 2 || meta.steps.length < 2) {
-            return null;
-        }
-        const last_step = meta.steps[meta.steps.length - 1];
-        const player = players.pop();
-        return player.login === last_step.login
-            ? players[0]
-            : player;
-    }
-    createGameBody(meta) {
-        const chess_emoji_map = new Map();
-        this.getPlayers(meta).forEach(player => {
-            chess_emoji_map.set(player.login, player.chess_emoji);
-        });
-        function getEmoji(x, y) {
-            const login = meta.data[x][y] || '';
-            return chess_emoji_map.get(login) || '';
-        }
-        const player_line = meta.player.map(player => player
-            ? `[${player.login}](${player.html_url}) ${player.chess_emoji}`
-            : '_').join(' vs ');
-        const lines = [
-            `<!-- ${JSON.stringify(meta)} -->`,
-            `# Welcome to the ${this.options.name} game!`,
-            'Submit your chess piece coordinates in the comments of this issue to start the game.',
-            '*e.g. `chess:1:a` or `chess:a:1` means the first row and first column.*',
-            `\n\`Status\`: ${meta.status}`,
-            `\`Player\`: ${player_line}`,
-        ];
-        const next_player = this.getNextPlayer(meta);
-        if (next_player) {
-            lines.push(`\`Next\`: ${next_player ? `[${next_player.login}](${next_player.html_url}) ${next_player.chess_emoji}` : ''}`);
-        }
-        lines.push('\n|+|a|b|c|', '|:--:|:--:|:--:|:--:|', `|1|${getEmoji(0, 0)}|${getEmoji(0, 1)}|${getEmoji(0, 2)}|`, `|2|${getEmoji(1, 0)}|${getEmoji(1, 1)}|${getEmoji(1, 2)}|`, `|3|${getEmoji(2, 0)}|${getEmoji(2, 1)}|${getEmoji(2, 2)}|`);
-        if (meta.steps.length > 0) {
-            lines.push('\n`Steps`:', ...meta.steps.map(step => {
-                const { login, coordinates, comment_url } = step;
-                const emoji = chess_emoji_map.get(login);
-                return `+ ${emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${comment_url})`;
-            }));
-        }
-        const result_line = this.getChessResult(meta);
-        if (result_line !== '') {
-            lines.push(`\n\`Result\`: ${result_line}`);
-        }
-        return lines.join('\n');
-    }
-    getPlayers(meta) {
-        return meta.player.filter(player => player);
-    }
-    getIssueTitle(meta) {
-        const title_blocks = [
-            `\`${this.options.name}\``,
-            `\`${meta.status}\``,
-        ];
-        const players = this.getPlayers(meta);
-        if (players.length === 2) {
-            title_blocks.push(`\`${players[0].login} vs ${players[1].login}\``);
-            if (meta.winner) {
-                title_blocks.push(`\`${this.getChessResult(meta)}\``);
+    static createRoomByIssueBody(options, body) {
+        if (body) {
+            const meta_match = body.match(/<!--\s*(\{.*\})\s*-->/);
+            if (meta_match) {
+                return new TicTacToeRoom(JSON.parse(meta_match[1]), options);
             }
         }
-        return `:chess_pawn: ${title_blocks.join(' ')}`;
+        throw new Error('Game meta data not found.');
     }
-    getChessMeta(issue_body) {
-        if (!issue_body) {
-            return null;
-        }
-        const meta_match = issue_body.match(/<!--\s*(\{.*\})\s*-->/);
-        if (!meta_match) {
-            throw new Error('Invalid issue body');
-        }
-        return JSON.parse(meta_match[1]);
+    static getRandomChessColor(excludes = []) {
+        const all_chess_colors = CHESS_COLORS.filter(color => !excludes.includes(color));
+        const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
+        return all_chess_colors[random_index];
     }
-    getChessPieceCoordinates(comment_body) {
-        const chess_regex = /^chess:(([1-3]:[a-c])|([a-c]:[1-3]))/ig;
+    static getCoordinatesByCommentBody(comment_body) {
+        const chess_regex = /^chess:(([1-3]:[a-c])|([a-c]:[1-3]))/igm;
         const chess_match = chess_regex.exec(comment_body);
         if (chess_match) {
             const row_letters = ['a', 'b', 'c'];
@@ -31360,126 +31335,239 @@ class TicTacToeGame extends Game {
         }
         return null;
     }
-    getChessWinner(meta) {
-        for (const [c1, c2, c3] of this.win_coordinates_map) {
-            const [l1, l2, l3] = [meta.data[c1.x][c1.y], meta.data[c2.x][c2.y], meta.data[c3.x][c3.y]];
-            if (l1 && l1 === l2 && l2 === l3) {
-                return meta.player.find(player => player?.login === l1) || null;
+    getWinnerPrintInfo() {
+        return this.meta.winner
+            ? this.meta.winner === 'tie'
+                ? 'Tie'
+                : `${this.meta.winner.login} wins`
+            : '';
+    }
+    getNextPlayer() {
+        const { players, steps } = this.meta;
+        if (players.length < 2) {
+            return null;
+        }
+        const last_step = steps[steps.length - 1];
+        if (last_step) {
+            const last_player_index = players.findIndex(player => player.login === last_step.login);
+            return players[(last_player_index + 1) % players.length];
+        }
+        else {
+            return players[0];
+        }
+    }
+    getLoginChessColorMap() {
+        const chess_color_map = new Map();
+        this.meta.players.forEach(p => chess_color_map.set(p.login, p.chess_color));
+        return chess_color_map;
+    }
+    getChessColorTable() {
+        const chess_color_map = this.getLoginChessColorMap();
+        return this.meta.data.map(row => {
+            return row.map(col => {
+                if (col) {
+                    const chess_color = chess_color_map.get(col);
+                    if (chess_color) {
+                        return chessColorToEmoji(chess_color);
+                    }
+                }
+                return '';
+            });
+        });
+    }
+    getIssueTitle() {
+        const titles = [
+            this.options.name,
+            this.meta.status
+        ];
+        const players = this.meta.players;
+        if (players.length == 2) {
+            titles.push(players.map(player => player.login).join(' vs '));
+            if (this.meta.winner) {
+                titles.push(this.getWinnerPrintInfo());
             }
         }
-        const empty_cells = meta.data.flat().filter(cell => !cell);
-        return empty_cells.length === 0 ? 'tie' : null;
+        return `:chess_pawn: ${titles.map(t => `\`${t}\``).join(' ')}`;
     }
-    getRandomChessEmoji(meta) {
-        const used_emojis = this.getPlayers(meta).map(player => player.chess_emoji);
-        const unused_emojis = chess_emojis.filter(emoji => !used_emojis.includes(emoji));
-        return unused_emojis[Math.floor(Math.random() * unused_emojis.length)];
+    getIssueBody() {
+        const player_line = this.meta.players
+            .map(player => `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`)
+            .join(' vs ');
+        const body_lines = [
+            `<!-- ${JSON.stringify(this.meta)} -->`,
+            `# Welcome to the ${this.options.name} game!`,
+            'Submit your chess piece coordinates in the comments of this issue to start the game.',
+            '*e.g. `chess:1:a` or `chess:a:1` means the first row and first column.*',
+            `\n\`Status\`: ${this.meta.status}`,
+            `\`Player\`: ${player_line}`,
+        ];
+        const next_player = this.getNextPlayer();
+        if (next_player) {
+            const chess_emoji = chessColorToEmoji(next_player.chess_color);
+            body_lines.push(`\`Next\`: [${next_player.login}](${next_player.url}) ${chess_emoji}`);
+        }
+        const table = this.getChessColorTable();
+        body_lines.push('\n|+|a|b|c|', '|:--:|:--:|:--:|:--:|', `|1|${table[0][0]}|${table[0][1]}|${table[0][2]}|`, `|2|${table[1][0]}|${table[1][1]}|${table[1][2]}|`, `|3|${table[2][0]}|${table[2][1]}|${table[2][2]}|`);
+        if (this.meta.steps.length > 0) {
+            const chess_color_map = this.getLoginChessColorMap();
+            body_lines.push('\n`Steps`:', ...this.meta.steps.map(step => {
+                const { login, coordinates, comment: { url } } = step;
+                const chess_emoji = chessColorToEmoji(chess_color_map.get(step.login));
+                return `+ ${chess_emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${url})`;
+            }));
+        }
+        const winner_line = this.getWinnerPrintInfo();
+        if (winner_line !== '') {
+            body_lines.push(`\n\`Result\`: ${winner_line}`);
+        }
+        return body_lines.join('\n');
     }
-    async initGameRooms() {
-        const meta = this.createInitChessMeta();
-        return await createIssue({
-            title: this.getIssueTitle(meta),
-            body: this.createGameBody(meta),
-            labels: [this.options.label]
-        });
+    getPlayerByLogin(login) {
+        return this.meta.players
+            .find(player => player.login === login) || null;
     }
-    throwReplyCommentError(issue_number, msg) {
-        throw new ReplyCommentError({
-            msg,
-            issue_number,
-            msg_type: 'error',
-            comment: github.context.payload.comment
-        });
+    async updateWinner() {
+        const { data } = this.meta;
+        for (const [c1, c2, c3] of WIN_MAP) {
+            const [l1, l2, l3] = [data[c1.x][c1.y], data[c2.x][c2.y], data[c3.x][c3.y]];
+            if (l1 && l1 === l2 && l2 === l3) {
+                this.meta.winner = this.getPlayerByLogin(l1);
+            }
+        }
+        const empty_cells = this.meta.data.flat().filter(cell => !cell);
+        this.meta.winner = empty_cells.length === 0 ? 'tie' : null;
     }
-    async handleChessPieceMove(issue_number, meta) {
-        const { id, html_url, body, user: { login, html_url: comment_html_url } } = github.context.payload.comment;
-        const coordinates = this.getChessPieceCoordinates(body);
+    async parseCoordinatesCommand(issue_number, comment) {
+        const coordinates = TicTacToeRoom.getCoordinatesByCommentBody(comment.body);
         if (!coordinates) {
             return;
         }
-        const player_count = this.getPlayers(meta).length;
-        let player_index = meta.player.findIndex(player => player?.login === login);
-        if (player_count < 2 && player_index === -1) {
-            player_index = player_count;
-            meta.player[player_index] = {
-                login: login,
-                html_url: comment_html_url,
-                chess_emoji: this.getRandomChessEmoji(meta)
+        let player = this.getPlayerByLogin(comment.user.login);
+        if (!player) {
+            if (this.meta.players.length >= 2) {
+                throwReplyMessageError(issue_number, comment, 'Game room is full, cannot join!');
+            }
+            const p = {
+                login: comment.user.login,
+                url: comment.user.html_url,
+                chess_color: TicTacToeRoom.getRandomChessColor(this.meta.players.map(p => p.chess_color))
             };
+            this.meta.players.push(p);
+            player = p;
         }
-        if (player_index === -1) {
-            this.throwReplyCommentError(issue_number, 'Game room is full, cannot join!');
+        const last_step = this.meta.steps[this.meta.steps.length - 1];
+        if (last_step && last_step.login === player.login) {
+            throwReplyMessageError(issue_number, comment, `You have already placed chess piece at ${last_step.coordinates.ox},${last_step.coordinates.oy}, please wait for your opponent's move.`);
         }
-        const last_step = meta.steps[meta.steps.length - 1];
-        if (last_step && last_step.login === login) {
-            this.throwReplyCommentError(issue_number, `You have already placed chess piece at ${last_step.coordinates.ox},${last_step.coordinates.oy}, please wait for your opponent's move.`);
-        }
-        const before_login = meta.data[coordinates.x][coordinates.y];
+        const before_login = this.meta.data[coordinates.x][coordinates.y];
         if (before_login) {
-            this.throwReplyCommentError(issue_number, `${coordinates.ox},${coordinates.oy} already has a chess piece by ${before_login}, please choose another position.`);
+            throwReplyMessageError(issue_number, comment, `${coordinates.ox},${coordinates.oy} already has a chess piece by ${before_login}, please choose another position.`);
         }
-        meta.steps.push({
-            login: login,
+        this.meta.data[coordinates.x][coordinates.y] = player.login;
+        this.meta.steps.push({
+            login: player.login,
             coordinates,
-            comment_id: id,
-            comment_url: html_url
+            comment: {
+                id: comment.id,
+                url: comment.html_url
+            }
         });
-        meta.data[coordinates.x][coordinates.y] = meta.player[player_index].login;
-        meta.winner = this.getChessWinner(meta);
     }
-    async handleIssueCreatedEvent({ title, number: issue_number }) {
-        const title_match = title.match(new RegExp(this.options.init_pattern, 'ig'));
-        if (title_match) {
-            const game_issue = await this.initGameRooms();
-            await createComment({
-                issue_number,
-                body: `Game room created: [${game_issue.title}](${game_issue.html_url}) click to join.`
-            });
-            await updateIssue({ issue_number, state: 'closed' });
-        }
-    }
-    async handleIssueCommentCreatedEvent({ body, number: issue_number }) {
-        if (!body) {
+    async parseColorCommand(issue_number, comment) {
+        const color_regex = new RegExp(`^color:(${CHESS_COLORS.join('|')})$`, 'igm');
+        const color_match = color_regex.exec(comment.body);
+        if (!color_match) {
             return;
         }
-        const meta = this.getChessMeta(body);
-        if (!meta) {
-            return;
+        const player = this.getPlayerByLogin(comment.user.login);
+        if (!player) {
+            throwReplyMessageError(issue_number, comment, 'You are not in the game room, cannot change your color!');
         }
-        if (meta.status === 'End') {
-            this.throwReplyCommentError(issue_number, 'Game has ended!');
+        const color = color_match[1];
+        if (CHESS_COLORS.includes(color)) {
+            const player_chess_colors = this.meta.players.map(p => p.chess_color);
+            if (player_chess_colors.includes(color)) {
+                throwReplyMessageError(issue_number, comment, `${color} chess piece has been used, please choose another color.\ne.g. ${CHESS_COLORS.join(', ')}`);
+            }
+            player.chess_color = color;
         }
-        // handle chess piece move
-        await this.handleChessPieceMove(issue_number, meta);
-        const player_count = this.getPlayers(meta).length;
+    }
+    async updateStatus(issue_number) {
+        const player_count = this.meta.players.length;
         if (player_count === 0) {
-            meta.status = 'Empty';
+            this.meta.status = 'init';
         }
-        else if (player_count <= 1) {
-            meta.status = 'Waiting';
+        else if (player_count === 1) {
+            this.meta.status = 'waiting';
         }
         else if (player_count === 2) {
-            meta.status = 'Playing';
+            this.meta.status = 'playing';
         }
-        if (meta.winner) {
-            meta.status = 'End';
-            const call_players = this.getPlayers(meta).map(player => '@' + player.login).join(' ');
-            await createComment({
+        if (this.meta.winner) {
+            this.meta.status = 'end';
+            const call_all_players = this.meta.players.map(player => '@' + player.login).join(' ');
+            await issue.createComment({
                 issue_number,
-                body: `${call_players}: ${this.getChessResult(meta)}\nGame over!`
+                body: `${call_all_players} Game has ended! ${this.getWinnerPrintInfo()}`
             });
         }
-        await updateIssue({
-            title: this.getIssueTitle(meta),
+    }
+    hasGameEnded() {
+        return this.meta.status === 'end';
+    }
+    async updateRoom(issue_number) {
+        this.meta.update_time = new Date().toISOString();
+        await issue.updateIssue({
             issue_number,
-            body: this.createGameBody(meta),
-            state: meta.winner ? 'closed' : 'open'
+            title: this.getIssueTitle(),
+            body: this.getIssueBody(),
+            state: this.hasGameEnded() ? 'closed' : 'open'
         });
     }
 }
+class TicTacToeGame extends Game {
+    async handleIssueOpenedEvent(payload) {
+        const { title, user, number: issue_number } = payload.issue;
+        const title_match = title.match(new RegExp(this.options.issue_title_pattern, 'ig'));
+        if (!title_match) {
+            return;
+        }
+        const default_player = {
+            login: user.login,
+            url: user.html_url,
+            chess_color: TicTacToeRoom.getRandomChessColor()
+        };
+        const room = TicTacToeRoom.createEmptyRoom(this.options, default_player);
+        const game_issue = await issue.createIssue({
+            title: room.getIssueTitle(),
+            body: room.getIssueBody(),
+            labels: [this.options.label]
+        });
+        await issue.createComment({
+            issue_number,
+            body: `Game room created: [${game_issue.title}](${game_issue.html_url}) click to join.`
+        });
+        await issue.updateIssue({ issue_number, state: 'closed' });
+    }
+    async handleIssueCommentCreatedEvent(payload) {
+        const { issue: { number: issue_number, body: issue_body, labels }, comment } = payload;
+        const labels_names = labels.map(l => l.name);
+        if (!labels_names.includes(this.options.label)) {
+            return;
+        }
+        const room = TicTacToeRoom.createRoomByIssueBody(this.options, issue_body);
+        if (room.hasGameEnded()) {
+            throwReplyMessageError(issue_number, comment, 'Game has ended!');
+        }
+        await room.parseCoordinatesCommand(issue_number, comment).catch(catchError);
+        await room.parseColorCommand(issue_number, comment).catch(catchError);
+        await room.updateWinner();
+        await room.updateStatus(issue_number);
+        await room.updateRoom(issue_number);
+    }
+}
 
-;// CONCATENATED MODULE: ./src/game/index.ts
-
+;// CONCATENATED MODULE: ./src/games/index.ts
 
 
 ;// CONCATENATED MODULE: ./src/index.ts
@@ -31487,42 +31575,15 @@ class TicTacToeGame extends Game {
 
 
 
-
 const manager = new GameManager({});
-manager.injectGames([
-    new TicTacToeGame({
-        name: 'TicTacToe',
-        label: {
-            name: src_config.ttt_label_name,
-            color: src_config.ttt_label_color,
-            description: src_config.ttt_label_description,
-        },
-        init_pattern: src_config.ttt_init_pattern,
-    })
-]);
-async function catch_error(error) {
-    if (error instanceof ReplyCommentError) {
-        const { msg_type, issue_number, comment } = error.options;
-        let msg = `${msg_type.toUpperCase()}: _${error.message}_`;
-        if (comment) {
-            const { id, html_url, body, user } = comment;
-            const body_line = (body || '')
-                .split('\n')
-                .map(line => '> ' + line)
-                .join('\n');
-            msg = `@${user.login} Reply: [${id}](${html_url} "Click to view the comment")\n${body_line}\n${msg}`;
-        }
-        core[msg_type](msg);
-        await createComment({
-            issue_number: issue_number,
-            body: msg,
-        });
-        return;
-    }
-    core.setFailed(error);
-}
-manager.handleAction().catch(catch_error);
-process.on('unhandledRejection', reason => catch_error(reason));
+manager.addGame(new TicTacToeGame({
+    name: 'TicTacToe',
+    description: 'Tic-Tac-Toe game',
+    label: src_input.ttt_label,
+    issue_title_pattern: src_input.ttt_issue_title_pattern
+}));
+manager.handleAction().catch(catchError);
+process.on('unhandledRejection', catchError);
 
 })();
 

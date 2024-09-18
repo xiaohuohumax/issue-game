@@ -37,19 +37,15 @@ jobs:
         uses: xiaohuohumax/Issue-game
           # with:
           #   token: ${{ secrets.GITHUB_TOKEN }}
-          #   ttt-init-pattern: "^play\\s+tic[-_]tac[-_]toe"
-          #   ttt-label-name: "game-ttt-room"
-          #   ttt-label-color: "#009527"
-          #   ttt-label-description: "This Issue is a Tic-Tac-Toe game room."
+          #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
+          #   ttt-label: "game-ttt-room"
 ```
 
 ## ⚙ Parameters
 
-| Name                    | Type   | Description                                           | Default Value                            |
-| ----------------------- | ------ | ----------------------------------------------------- | ---------------------------------------- |
-| `token`                 | string | GitHub token for authentication                       | {{ github.token }}                       |
-| `ttt-init-pattern`      | string | Tic-Tac-Toe game: regex for creating room Issue title | "^play\\s+tic[-\_]tac[-\_]toe"           |
-| t`tt-label-name`        | string | Tic-Tac-Toe game: issue label name                    | "game-ttt-room"                          |
-| `ttt-label-color`       | string | Tic-Tac-Toe game: issue label color                   | "#009527"                                |
-| `ttt-label-description` | string | Tic-Tac-Toe game: issue label description             | "This Issue is a Tic-Tac-Toe game room." |
+| Name                      | Type   | Description                                           | Default Value                    |
+| ------------------------- | ------ | ----------------------------------------------------- | -------------------------------- |
+| `token`                   | string | GitHub token for authentication                       | {{ github.token }}               |
+| `ttt-issue-title-pattern` | string | Tic-Tac-Toe game: regex for creating room Issue title | "^play\\s+tic[-\_]?tac[-\_]?toe" |
+| `ttt-label`               | string | Tic-Tac-Toe game: issue label name                    | "game-ttt-room"                  |
 

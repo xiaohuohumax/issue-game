@@ -37,18 +37,14 @@ jobs:
         uses: xiaohuohumax/Issue-game
           # with:
           #   token: ${{ secrets.GITHUB_TOKEN }}
-          #   ttt-init-pattern: "^play\\s+tic[-_]tac[-_]toe"
-          #   ttt-label-name: "game-ttt-room"
-          #   ttt-label-color: "#009527"
-          #   ttt-label-description: "This Issue is a Tic-Tac-Toe game room."
+          #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
+          #   ttt-label: "game-ttt-room"
 ```
 
 ## ⚙ 使用参数
 
-| 名称                    | 类型   | 说明                                | 默认值                                   |
-| ----------------------- | ------ | ----------------------------------- | ---------------------------------------- |
-| `token`                 | string | 用于身份验证的 GitHub 令牌          | {{ github.token }}                       |
-| `ttt-init-pattern`      | string | 井字棋游戏：创建房间 Issue 标题正则 | "^play\\s+tic[-\_]tac[-\_]toe"           |
-| `ttt-label-name`        | string | 井字棋游戏：issue 标签名称          | "game-ttt-room"                          |
-| `ttt-label-color`       | string | 井字棋游戏：issue 标签颜色          | "#009527"                                |
-| `ttt-label-description` | string | 井字棋游戏：issue 标签描述          | "This Issue is a Tic-Tac-Toe game room." |
+| 名称                      | 类型   | 说明                                | 默认值                           |
+| ------------------------- | ------ | ----------------------------------- | -------------------------------- |
+| `token`                   | string | 用于身份验证的 GitHub 令牌          | {{ github.token }}               |
+| `ttt-issue-title-pattern` | string | 井字棋游戏：创建房间 Issue 标题正则 | "^play\\s+tic[-\_]?tac[-\_]?toe" |
+| `ttt-label`               | string | 井字棋游戏：issue 标签名称          | "game-ttt-room"                  |

@@ -7,22 +7,14 @@ inputs:
     required: true
     description: "The Github token for authentication"
     default: ${{ github.token }}
-  ttt-init-pattern:
+  ttt-issue-title-pattern:
     required: false
     description: "Tic-Tac-Toe game: create room issue title pattern"
-    default: "^play\\s+tic[-_]tac[-_]toe"
-  ttt-label-name:
+    default: "^play\\s+tic[-_]?tac[-_]?toe"
+  ttt-label:
     required: false
     description: "Tic-Tac-Toe game: issue label name"
     default: "game-ttt-room"
-  ttt-label-color:
-    required: false
-    description: "Tic-Tac-Toe game: issue label color"
-    default: "#009527"
-  ttt-label-description:
-    required: false
-    description: "Tic-Tac-Toe game: issue label description"
-    default: "This issue is a Tic-Tac-Toe game room."
 
 runs:
   using: "node20"
