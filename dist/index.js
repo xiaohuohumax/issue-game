@@ -31226,6 +31226,21 @@ class IssueApi {
 const { owner, repo } = github.context.repo;
 /* harmony default export */ const issue = (new IssueApi(owner, repo, src_input.token));
 
+;// CONCATENATED MODULE: ./src/replay.ts
+
+async function replayMessage({ message_type, issue_number, message, target }) {
+    let comment_body = `${message_type}: ${message}`;
+    if (target) {
+        const body = target.body || '';
+        const quote_body = body.split('\n').map(line => `> ${line}`).join('\n');
+        comment_body = `@${target.login} Reply: [${target.name}](${target.url} "Click to view the comment")\n\n${quote_body}\n\n${comment_body}`;
+    }
+    await issue.createComment({
+        issue_number,
+        body: comment_body
+    });
+}
+
 ;// CONCATENATED MODULE: ./src/error.ts
 
 
@@ -31242,17 +31257,7 @@ async function catchError(error) {
     if (!(error instanceof ReplyMessageError)) {
         return core.setFailed(error);
     }
-    const { reply_type, issue_number, message, target } = error.options;
-    let comment_body = `${reply_type}: ${message}`;
-    if (target) {
-        const body = target.body || '';
-        const quote_body = body.split('\n').map(line => `> ${line}`).join('\n');
-        comment_body = `@${target.login} Reply: [${target.name}](${target.url} "Click to view the comment")\n\n${quote_body}\n\n${comment_body}`;
-    }
-    await issue.createComment({
-        issue_number,
-        body: comment_body
-    });
+    replayMessage(error.options);
 }
 
 ;// CONCATENATED MODULE: ./src/games/tic-tac-toe.ts
@@ -31260,43 +31265,75 @@ async function catchError(error) {
 
 
 
-function throwReplyMessageError(issue_number, comment, message) {
-    throw new ReplyMessageError({
-        message,
-        issue_number,
-        reply_type: 'Error',
+
+// todo add language command
+// type ChessLanguage = 'en' | 'zh';
+function getMessageParamsByComment(comment, message_params) {
+    return {
+        ...message_params,
         target: {
             login: comment.user.login,
             name: 'issue-comment: ' + comment.id,
             url: comment.html_url,
             body: comment.body
-        }
-    });
+        },
+    };
 }
-const WIN_MAP = [
-    // rows
-    [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }],
-    [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
-    [{ x: 2, y: 0 }, { x: 2, y: 1 }, { x: 2, y: 2 }],
-    // columns
-    [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }],
-    [{ x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }],
-    [{ x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
-    // diagonals
-    [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }],
-    [{ x: 0, y: 2 }, { x: 1, y: 1 }, { x: 2, y: 0 }],
-];
+function throwReplyMessageError(issue_number, comment, message) {
+    const message_params = getMessageParamsByComment(comment, {
+        message,
+        issue_number,
+        message_type: 'Error',
+    });
+    throw new ReplyMessageError(message_params);
+}
 class TicTacToeRoom extends Room {
-    static createEmptyRoom(options, default_player) {
+    static WIN_MAP = [
+        // rows
+        [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }],
+        [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
+        [{ x: 2, y: 0 }, { x: 2, y: 1 }, { x: 2, y: 2 }],
+        // columns
+        [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }],
+        [{ x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }],
+        [{ x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
+        // diagonals
+        [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }],
+        [{ x: 0, y: 2 }, { x: 1, y: 1 }, { x: 2, y: 0 }],
+    ];
+    static COMMAND_PARSER_MAP = {
+        chess: (value, origin) => {
+            const match = value.match(/^(([1-3]:[a-c])|([a-c]:[1-3]))$/ig);
+            if (!match) {
+                throw new Error(`\`${origin}\` error: ${value} is not a valid chess position, e.g. "1:a" or "a:1"`);
+            }
+            const row_letters = ['a', 'b', 'c'];
+            let [x, y] = match[1].toLocaleLowerCase().split(':');
+            let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
+            if (isNaN(int_x) && !isNaN(int_y)) {
+                [int_x, int_y] = [int_y, int_x];
+                [x, y] = [y, x];
+            }
+            return { x: int_x - 1, y: row_letters.indexOf(y), ox: x, oy: y };
+        },
+        color: (value, origin) => {
+            if (!CHESS_COLORS.includes(value)) {
+                throw new Error(`\`${origin}\` error: ${value} not in ${CHESS_COLORS.join(', ')}`);
+            }
+            return value;
+        }
+    };
+    static createEmptyRoom(options, create_player) {
         const meta = {
             status: 'init',
-            players: default_player ? [default_player] : [],
+            players: [create_player],
             data: [
                 [null, null, null],
                 [null, null, null],
                 [null, null, null]
             ],
             steps: [],
+            create_at: create_player.login,
             winner: null,
             create_time: new Date().toISOString(),
             update_time: new Date().toISOString()
@@ -31316,21 +31353,6 @@ class TicTacToeRoom extends Room {
         const all_chess_colors = CHESS_COLORS.filter(color => !excludes.includes(color));
         const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
         return all_chess_colors[random_index];
-    }
-    static getCoordinatesByCommentBody(comment_body) {
-        const chess_regex = /^chess:(([1-3]:[a-c])|([a-c]:[1-3]))/igm;
-        const chess_match = chess_regex.exec(comment_body);
-        if (chess_match) {
-            const row_letters = ['a', 'b', 'c'];
-            let [x, y] = chess_match[1].toLocaleLowerCase().split(':');
-            let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
-            if (isNaN(int_x) && !isNaN(int_y)) {
-                [int_x, int_y] = [int_y, int_x];
-                [x, y] = [y, x];
-            }
-            return { x: int_x - 1, y: row_letters.indexOf(y), ox: x, oy: y };
-        }
-        return null;
     }
     getWinnerPrintInfo() {
         return this.meta.winner
@@ -31422,13 +31444,36 @@ class TicTacToeRoom extends Room {
         }
         return body_lines.join('\n');
     }
+    parseCommands(command_body) {
+        const commands = {};
+        const errors = [];
+        if (command_body) {
+            const command_regex = /^(\w+):.*$/igm;
+            for (const [origin, key, value] of command_body.matchAll(command_regex)) {
+                const parser_key = key;
+                const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];
+                if (!parser) {
+                    errors.push(new Error(`Unknown command: ${origin}`));
+                    continue;
+                }
+                try {
+                    // @ts-expect-error ignore type error
+                    commands[parser_key] = parser(value.trim(), origin);
+                }
+                catch (error) {
+                    errors.push(error);
+                }
+            }
+        }
+        return [commands, errors];
+    }
     getPlayerByLogin(login) {
         return this.meta.players
             .find(player => player.login === login) || null;
     }
     async updateWinner() {
         const { data } = this.meta;
-        for (const [c1, c2, c3] of WIN_MAP) {
+        for (const [c1, c2, c3] of TicTacToeRoom.WIN_MAP) {
             const [l1, l2, l3] = [data[c1.x][c1.y], data[c2.x][c2.y], data[c3.x][c3.y]];
             if (l1 && l1 === l2 && l2 === l3) {
                 this.meta.winner = this.getPlayerByLogin(l1);
@@ -31438,8 +31483,7 @@ class TicTacToeRoom extends Room {
         const empty_cells = this.meta.data.flat().filter(cell => !cell);
         this.meta.winner = empty_cells.length === 0 ? 'tie' : null;
     }
-    async parseCoordinatesCommand(issue_number, comment) {
-        const coordinates = TicTacToeRoom.getCoordinatesByCommentBody(comment.body);
+    async parseCoordinatesCommand(issue_number, { chess: coordinates }, comment) {
         if (!coordinates) {
             return;
         }
@@ -31474,17 +31518,14 @@ class TicTacToeRoom extends Room {
             }
         });
     }
-    async parseColorCommand(issue_number, comment) {
-        const color_regex = new RegExp(`^color:(${CHESS_COLORS.join('|')})$`, 'igm');
-        const color_match = color_regex.exec(comment.body);
-        if (!color_match) {
+    async parseColorCommand(issue_number, { color }, comment) {
+        if (!color) {
             return;
         }
         const player = this.getPlayerByLogin(comment.user.login);
         if (!player) {
             throwReplyMessageError(issue_number, comment, 'You are not in the game room, cannot change your color!');
         }
-        const color = color_match[1];
         if (CHESS_COLORS.includes(color)) {
             const player_chess_colors = this.meta.players.map(p => p.chess_color);
             if (player_chess_colors.includes(color)) {
@@ -31534,12 +31575,12 @@ class TicTacToeGame extends Game {
         if (!title_match) {
             return;
         }
-        const default_player = {
+        const create_player = {
             login: user.login,
             url: user.html_url,
             chess_color: TicTacToeRoom.getRandomChessColor()
         };
-        const room = TicTacToeRoom.createEmptyRoom(this.options, default_player);
+        const room = TicTacToeRoom.createEmptyRoom(this.options, create_player);
         const game_issue = await issue.createIssue({
             title: room.getIssueTitle(),
             body: room.getIssueBody(),
@@ -31561,8 +31602,18 @@ class TicTacToeGame extends Game {
         if (room.hasGameEnded()) {
             throwReplyMessageError(issue_number, comment, 'Game has ended!');
         }
-        await room.parseCoordinatesCommand(issue_number, comment).catch(catchError);
-        await room.parseColorCommand(issue_number, comment).catch(catchError);
+        const [command, errors] = room.parseCommands(comment.body);
+        if (errors.length > 0) {
+            const error_messages = errors.map(e => '+ ' + e.message).join('\n');
+            const message_params = getMessageParamsByComment(comment, {
+                message: '\n' + error_messages,
+                message_type: 'Warning',
+                issue_number
+            });
+            replayMessage(message_params);
+        }
+        await room.parseCoordinatesCommand(issue_number, command, comment).catch(catchError);
+        await room.parseColorCommand(issue_number, command, comment).catch(catchError);
         await room.updateWinner();
         await room.updateStatus(issue_number);
         await room.updateRoom(issue_number);

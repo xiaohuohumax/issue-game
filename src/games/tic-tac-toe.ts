@@ -1,13 +1,14 @@
 import {
   IssueCommentCreatedEvent, IssuesOpenedEvent
 } from '@octokit/webhooks-definitions/schema';
-import { Meta, Game, Room, GameOptions, RoomOptions } from '../game';
+import { Meta, Game, Room, GameOptions, RoomOptions, RoomCommands, RoomCommandsParser } from '../game';
 import {
   ArrayTable, ChessColor, Coordinates,
   CoordinatesWithOrigin, CHESS_COLORS, chessColorToEmoji
 } from '../chess';
 import issue_api from '../api/issue';
 import { ReplyMessageError, catchError } from '../error';
+import { ReplayMessageParams, replayMessage } from '../replay';
 
 type MetaStatus = 'init' | 'waiting' | 'playing' | 'end';
 
@@ -17,7 +18,7 @@ interface MetaPlayer {
   chess_color: ChessColor;
 }
 
-type MetaData = string | null;
+type MetaDataLogin = string | null;
 
 interface MetaStep {
   login: string;
@@ -33,57 +34,101 @@ type MetaWinner = MetaPlayer | null | 'tie';
 interface TicTacToeMeta extends Meta {
   status: MetaStatus;
   players: MetaPlayer[];
-  data: ArrayTable<MetaData, 3, 3>;
+  data: ArrayTable<MetaDataLogin, 3, 3>;
   steps: MetaStep[];
+  create_at: string | null;
   winner: MetaWinner;
   create_time: string;
   update_time: string;
 }
 
-function throwReplyMessageError(issue_number: number, comment: IssueCommentCreatedEvent['comment'], message: string): never {
-  throw new ReplyMessageError({
-    message,
-    issue_number,
-    reply_type: 'Error',
+// todo add language command
+// type ChessLanguage = 'en' | 'zh';
+
+function getMessageParamsByComment(comment: IssueCommentCreatedEvent['comment'], message_params: ReplayMessageParams): ReplayMessageParams {
+  return {
+    ...message_params,
     target: {
       login: comment.user.login,
       name: 'issue-comment: ' + comment.id,
       url: comment.html_url,
       body: comment.body
-    }
-  });
+    },
+  };
 }
 
-const WIN_MAP: ArrayTable<Coordinates, 3, 8> = [
-  // rows
-  [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }],
-  [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
-  [{ x: 2, y: 0 }, { x: 2, y: 1 }, { x: 2, y: 2 }],
-
-  // columns
-  [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }],
-  [{ x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }],
-  [{ x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
-
-  // diagonals
-  [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }],
-  [{ x: 0, y: 2 }, { x: 1, y: 1 }, { x: 2, y: 0 }],
-];
+function throwReplyMessageError(issue_number: number, comment: IssueCommentCreatedEvent['comment'], message: string): never {
+  const message_params: ReplayMessageParams = getMessageParamsByComment(comment, {
+    message,
+    issue_number,
+    message_type: 'Error',
+  });
+  throw new ReplyMessageError(message_params);
+}
 
 export interface TicTacToeRoomOptions extends RoomOptions { }
 
-export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
+export interface TicTacToeRoomCommands extends RoomCommands {
+  chess?: CoordinatesWithOrigin;
+  color?: ChessColor;
+  // language?: ChessLanguage;
+}
 
-  public static createEmptyRoom(options: TicTacToeRoomOptions, default_player?: MetaPlayer): TicTacToeRoom {
+export type TicTacToeRoomCommandsParser = RoomCommandsParser<Required<TicTacToeRoomCommands>>;
+
+export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, TicTacToeRoomCommands> {
+
+  public static readonly WIN_MAP: ArrayTable<Coordinates, 3, 8> = [
+    // rows
+    [{ x: 0, y: 0 }, { x: 0, y: 1 }, { x: 0, y: 2 }],
+    [{ x: 1, y: 0 }, { x: 1, y: 1 }, { x: 1, y: 2 }],
+    [{ x: 2, y: 0 }, { x: 2, y: 1 }, { x: 2, y: 2 }],
+
+    // columns
+    [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }],
+    [{ x: 0, y: 1 }, { x: 1, y: 1 }, { x: 2, y: 1 }],
+    [{ x: 0, y: 2 }, { x: 1, y: 2 }, { x: 2, y: 2 }],
+
+    // diagonals
+    [{ x: 0, y: 0 }, { x: 1, y: 1 }, { x: 2, y: 2 }],
+    [{ x: 0, y: 2 }, { x: 1, y: 1 }, { x: 2, y: 0 }],
+  ];
+
+  public static readonly COMMAND_PARSER_MAP: TicTacToeRoomCommandsParser = {
+    chess: (value: string, origin: string) => {
+      const match = value.match(/^(([1-3]:[a-c])|([a-c]:[1-3]))$/ig);
+      if (!match) {
+        throw new Error(`\`${origin}\` error: ${value} is not a valid chess position, e.g. "1:a" or "a:1"`);
+      }
+      const row_letters = ['a', 'b', 'c'];
+      let [x, y] = match[1].toLocaleLowerCase().split(':');
+
+      let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
+      if (isNaN(int_x) && !isNaN(int_y)) {
+        [int_x, int_y] = [int_y, int_x];
+        [x, y] = [y, x];
+      }
+      return { x: int_x - 1, y: row_letters.indexOf(y), ox: x, oy: y };
+    },
+    color: (value: string, origin: string) => {
+      if (!CHESS_COLORS.includes(value as ChessColor)) {
+        throw new Error(`\`${origin}\` error: ${value} not in ${CHESS_COLORS.join(', ')}`);
+      }
+      return value as ChessColor;
+    }
+  };
+
+  public static createEmptyRoom(options: TicTacToeRoomOptions, create_player: MetaPlayer): TicTacToeRoom {
     const meta: TicTacToeMeta = {
       status: 'init',
-      players: default_player ? [default_player] : [],
+      players: [create_player],
       data: [
         [null, null, null],
         [null, null, null],
         [null, null, null]
       ],
       steps: [],
+      create_at: create_player.login,
       winner: null,
       create_time: new Date().toISOString(),
       update_time: new Date().toISOString()
@@ -106,24 +151,6 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       .filter(color => !excludes.includes(color));
     const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
     return all_chess_colors[random_index];
-  }
-
-  public static getCoordinatesByCommentBody(comment_body: string): CoordinatesWithOrigin | null {
-    const chess_regex = /^chess:(([1-3]:[a-c])|([a-c]:[1-3]))/igm;
-    const chess_match = chess_regex.exec(comment_body);
-    if (chess_match) {
-      const row_letters = ['a', 'b', 'c'];
-      let [x, y] = chess_match[1].toLocaleLowerCase().split(':');
-
-      let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
-      if (isNaN(int_x) && !isNaN(int_y)) {
-        [int_x, int_y] = [int_y, int_x];
-        [x, y] = [y, x];
-      }
-
-      return { x: int_x - 1, y: row_letters.indexOf(y), ox: x, oy: y };
-    }
-    return null;
   }
 
   public getWinnerPrintInfo(): string {
@@ -236,6 +263,29 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     return body_lines.join('\n');
   }
 
+  public parseCommands(command_body?: string): [TicTacToeRoomCommands, Error[]] {
+    const commands: TicTacToeRoomCommands = {};
+    const errors: Error[] = [];
+    if (command_body) {
+      const command_regex = /^(\w+):.*$/igm;
+      for (const [origin, key, value] of command_body.matchAll(command_regex)) {
+        const parser_key = key as keyof TicTacToeRoomCommandsParser;
+        const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];
+        if (!parser) {
+          errors.push(new Error(`Unknown command: ${origin}`));
+          continue;
+        }
+        try {
+          // @ts-expect-error ignore type error
+          commands[parser_key] = parser(value.trim(), origin);
+        } catch (error) {
+          errors.push(error as Error);
+        }
+      }
+    }
+    return [commands, errors];
+  }
+
   public getPlayerByLogin(login: string): MetaPlayer | null {
     return this.meta.players
       .find(player => player.login === login) || null;
@@ -243,7 +293,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
 
   public async updateWinner(): Promise<void> {
     const { data } = this.meta;
-    for (const [c1, c2, c3] of WIN_MAP) {
+    for (const [c1, c2, c3] of TicTacToeRoom.WIN_MAP) {
       const [l1, l2, l3] = [data[c1.x][c1.y], data[c2.x][c2.y], data[c3.x][c3.y]];
       if (l1 && l1 === l2 && l2 === l3) {
         this.meta.winner = this.getPlayerByLogin(l1);
@@ -254,8 +304,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     this.meta.winner = empty_cells.length === 0 ? 'tie' : null;
   }
 
-  public async parseCoordinatesCommand(issue_number: number, comment: IssueCommentCreatedEvent['comment']): Promise<void> {
-    const coordinates = TicTacToeRoom.getCoordinatesByCommentBody(comment.body);
+  public async parseCoordinatesCommand(issue_number: number, { chess: coordinates }: TicTacToeRoomCommands, comment: IssueCommentCreatedEvent['comment']): Promise<void> {
     if (!coordinates) {
       return;
     }
@@ -301,10 +350,8 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     });
   }
 
-  public async parseColorCommand(issue_number: number, comment: IssueCommentCreatedEvent['comment']): Promise<void> {
-    const color_regex = new RegExp(`^color:(${CHESS_COLORS.join('|')})$`, 'igm');
-    const color_match = color_regex.exec(comment.body);
-    if (!color_match) {
+  public async parseColorCommand(issue_number: number, { color }: TicTacToeRoomCommands, comment: IssueCommentCreatedEvent['comment']): Promise<void> {
+    if (!color) {
       return;
     }
 
@@ -315,7 +362,6 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
         'You are not in the game room, cannot change your color!');
     }
 
-    const color = color_match[1] as ChessColor;
     if (CHESS_COLORS.includes(color)) {
       const player_chess_colors = this.meta.players.map(p => p.chess_color);
       if (player_chess_colors.includes(color)) {
@@ -377,12 +423,12 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
       return;
     }
 
-    const default_player: MetaPlayer = {
+    const create_player: MetaPlayer = {
       login: user.login,
       url: user.html_url,
       chess_color: TicTacToeRoom.getRandomChessColor()
     };
-    const room = TicTacToeRoom.createEmptyRoom(this.options, default_player);
+    const room = TicTacToeRoom.createEmptyRoom(this.options, create_player);
 
     const game_issue = await issue_api.createIssue({
       title: room.getIssueTitle(),
@@ -410,8 +456,18 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
       throwReplyMessageError(issue_number, comment, 'Game has ended!');
     }
 
-    await room.parseCoordinatesCommand(issue_number, comment).catch(catchError);
-    await room.parseColorCommand(issue_number, comment).catch(catchError);
+    const [command, errors] = room.parseCommands(comment.body);
+    if (errors.length > 0) {
+      const error_messages = errors.map(e => '+ ' + e.message).join('\n');
+      const message_params = getMessageParamsByComment(comment, {
+        message: '\n' + error_messages,
+        message_type: 'Warning',
+        issue_number
+      });
+      replayMessage(message_params);
+    }
+    await room.parseCoordinatesCommand(issue_number, command, comment).catch(catchError);
+    await room.parseColorCommand(issue_number, command, comment).catch(catchError);
 
     await room.updateWinner();
     await room.updateStatus(issue_number);
