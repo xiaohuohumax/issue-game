@@ -98,7 +98,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     chess: (value: string, origin: string) => {
       const match = value.match(/^(([1-3]:[a-c])|([a-c]:[1-3]))$/ig);
       if (!match) {
-        throw new Error(`\`${origin}\` error: ${value} is not a valid chess position, e.g. "1:a" or "a:1"`);
+        throw new Error(`\`${origin}\` error: \`${value}\` format incorrect or the pieces are out of range.`);
       }
       const row_letters = ['a', 'b', 'c'];
       let [x, y] = match[1].toLocaleLowerCase().split(':');
@@ -112,7 +112,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     },
     color: (value: string, origin: string) => {
       if (!CHESS_COLORS.includes(value as ChessColor)) {
-        throw new Error(`\`${origin}\` error: ${value} not in ${CHESS_COLORS.join(', ')}`);
+        throw new Error(`\`${origin}\` error: \`${value}\` not in ${CHESS_COLORS.join(', ')}.`);
       }
       return value as ChessColor;
     }
@@ -272,7 +272,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
         const parser_key = key as keyof TicTacToeRoomCommandsParser;
         const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];
         if (!parser) {
-          errors.push(new Error(`Unknown command: ${origin}`));
+          errors.push(new Error(`\`${origin}\` error: Unknown command.`));
           continue;
         }
         try {
