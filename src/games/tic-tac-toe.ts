@@ -267,7 +267,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     const commands: TicTacToeRoomCommands = {};
     const errors: Error[] = [];
     if (command_body) {
-      const command_regex = /^(\w+):.*$/igm;
+      const command_regex = /^(\w+):(.*)$/igm;
       for (const [origin, key, value] of command_body.matchAll(command_regex)) {
         const parser_key = key as keyof TicTacToeRoomCommandsParser;
         const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];

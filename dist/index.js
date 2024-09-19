@@ -31448,7 +31448,7 @@ class TicTacToeRoom extends Room {
         const commands = {};
         const errors = [];
         if (command_body) {
-            const command_regex = /^(\w+):.*$/igm;
+            const command_regex = /^(\w+):(.*)$/igm;
             for (const [origin, key, value] of command_body.matchAll(command_regex)) {
                 const parser_key = key;
                 const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];
