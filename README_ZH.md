@@ -8,7 +8,7 @@
 
 点击下面的链接，即可开始游戏：
 
-+ [井字棋](https://github.com/xiaohuohumax/issue-game/issues/new?title=Play%20Tic-Tac-Toe&body=请不要修改%20Issue%20标题，直接提交即可。 '点击此处创建房间，开始游戏')
++ [井字棋](https://github.com/xiaohuohumax/issue-game/issues/new?title=Play%20Tic-Tac-Toe&body=请不要修改%20Issue%20标题和内容，直接提交即可。\nlanguage:zh '点击此处创建房间，开始游戏')
 
 ## 📖 使用方法
 
