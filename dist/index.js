@@ -33768,6 +33768,10 @@ class TicTacToeRoom extends Room {
         };
         if (command.chess) {
             meta.data[command.chess.x][command.chess.y] = create_player.login;
+            meta.steps.push({
+                login: create_player.login,
+                coordinates: command.chess,
+            });
         }
         return new TicTacToeRoom(meta, options);
     }
@@ -33789,7 +33793,7 @@ class TicTacToeRoom extends Room {
         return this.meta.winner
             ? this.meta.winner === 'tie'
                 ? i18n.t('games.ttt.room.winner.tie')
-                : i18n.t('games.ttt.room.winner.win', { winner: this.meta.winner.login })
+                : i18n.t('games.ttt.room.winner.win', { login: this.meta.winner.login })
             : '';
     }
     getNextPlayer() {
@@ -33869,14 +33873,19 @@ class TicTacToeRoom extends Room {
         if (this.meta.steps.length > 0) {
             const chess_color_map = this.getLoginChessColorMap();
             body_lines.push('', i18n.t('games.ttt.room.body.steps'), ...this.meta.steps.map(step => {
-                const { login, coordinates, comment: { url } } = step;
+                const { login, coordinates, comment } = step;
                 const chess_emoji = chessColorToEmoji(chess_color_map.get(step.login));
-                return `+ ${chess_emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${url})`;
+                if (comment) {
+                    return `+ ${chess_emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${comment.url})`;
+                }
+                else {
+                    return `+ ${chess_emoji} ${coordinates.ox}:${coordinates.oy} ${login}`;
+                }
             }));
         }
         const winner_line = this.getWinnerPrintInfo();
         if (winner_line !== '') {
-            body_lines.push(i18n.t('games.ttt.room.body.result', {
+            body_lines.push('', i18n.t('games.ttt.room.body.result', {
                 result: winner_line
             }));
         }
@@ -33957,10 +33966,7 @@ class TicTacToeRoom extends Room {
         this.meta.steps.push({
             login: player.login,
             coordinates,
-            comment: {
-                id: comment.id,
-                url: comment.html_url
-            }
+            comment: { url: comment.html_url }
         });
     }
     async parseColorCommand(issue_number, { color }, comment) {

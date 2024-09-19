@@ -24,8 +24,7 @@ type MetaDataLogin = string | null;
 interface MetaStep {
   login: string;
   coordinates: CoordinatesWithOrigin;
-  comment: {
-    id: number;
+  comment?: {
     url: string;
   }
 }
@@ -160,6 +159,10 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     };
     if (command.chess) {
       meta.data[command.chess.x][command.chess.y] = create_player.login;
+      meta.steps.push({
+        login: create_player.login,
+        coordinates: command.chess,
+      });
     }
     return new TicTacToeRoom(meta, options);
   }
@@ -185,7 +188,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     return this.meta.winner
       ? this.meta.winner === 'tie'
         ? i18n.t('games.ttt.room.winner.tie')
-        : i18n.t('games.ttt.room.winner.win', { winner: this.meta.winner.login })
+        : i18n.t('games.ttt.room.winner.win', { login: this.meta.winner.login })
       : '';
   }
 
@@ -285,9 +288,13 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
         '',
         i18n.t('games.ttt.room.body.steps'),
         ...this.meta.steps.map(step => {
-          const { login, coordinates, comment: { url } } = step;
+          const { login, coordinates, comment } = step;
           const chess_emoji = chessColorToEmoji(chess_color_map.get(step.login));
-          return `+ ${chess_emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${url})`;
+          if (comment) {
+            return `+ ${chess_emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${comment.url})`;
+          } else {
+            return `+ ${chess_emoji} ${coordinates.ox}:${coordinates.oy} ${login}`;
+          }
         })
       );
     }
@@ -295,6 +302,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     const winner_line = this.getWinnerPrintInfo();
     if (winner_line !== '') {
       body_lines.push(
+        '',
         i18n.t('games.ttt.room.body.result', {
           result: winner_line
         })
@@ -391,10 +399,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     this.meta.steps.push({
       login: player.login,
       coordinates,
-      comment: {
-        id: comment.id,
-        url: comment.html_url
-      }
+      comment: { url: comment.html_url }
     });
   }
 
