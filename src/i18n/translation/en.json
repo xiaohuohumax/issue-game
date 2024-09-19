@@ -17,7 +17,7 @@
       },
       "room": {
         "winner": {
-          "tie": "Tie",
+          "tie": "Tie!",
           "win": "{{login}} wins!"
         },
         "body": {
@@ -35,8 +35,8 @@
       },
       "reply": {
         "room_full": "The room is full, unable to join!",
-        "wait_opponent_move": "You have placed a piece at {{ox}}{{oy}}, please wait for the opponent's move.",
-        "position_occupied": "`{{login}}` has already placed a piece at {{ox}}{{oy}}, please choose again.",
+        "wait_opponent_move": "You have placed a piece at {{ox}}:{{oy}}, please wait for the opponent's move.",
+        "position_occupied": "`{{login}}` has already placed a piece at {{ox}}:{{oy}}, please choose again.",
         "color_change_failed": "You are not in the room, unable to change piece color.",
         "color_used": "`{{color}}` has already been used, please choose again.",
         "game_ended": "The game has ended!",

@@ -17,7 +17,7 @@
       },
       "room": {
         "winner": {
-          "tie": "平局",
+          "tie": "平局!",
           "win": "{{login}} 获胜！"
         },
         "body": {
@@ -35,8 +35,8 @@
       },
       "reply": {
         "room_full": "房间已满，无法加入！",
-        "wait_opponent_move": "你已经在 {{ox}}{{oy}} 处落子，请等待对手落子。",
-        "position_occupied": "`{{login}} 已经在 {{ox}}{{oy}} 处落子，请重新选择。",
+        "wait_opponent_move": "你已经在 {{ox}}:{{oy}} 处落子，请等待对手落子。",
+        "position_occupied": "`{{login}} 已经在 {{ox}}:{{oy}} 处落子，请重新选择。",
         "color_change_failed": "你不在房间中，无法更改棋子颜色。",
         "color_used": "`{{color}}` 已经被使用，请重新选择。",
         "game_ended": "游戏已经结束！",

@@ -181,7 +181,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     const all_chess_colors = CHESS_COLORS
       .filter(color => !excludes.includes(color));
     const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
-    return all_chess_colors[random_index];
+    return all_chess_colors[random_index % all_chess_colors.length];
   }
 
   public getWinnerPrintInfo(): string {

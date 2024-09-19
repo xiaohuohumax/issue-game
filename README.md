@@ -39,6 +39,7 @@ jobs:
         uses: xiaohuohumax/issue-game
           # with:
           #   token: ${{ secrets.GITHUB_TOKEN }}
+          #   language: "en"
           #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
           #   ttt-label-prefix: "game-ttt-room-"
 ```
@@ -48,6 +49,7 @@ jobs:
 | Name                      | Type   | Description                                           | Default Value                    |
 | ------------------------- | ------ | ----------------------------------------------------- | -------------------------------- |
 | `token`                   | string | GitHub token for authentication                       | {{ github.token }}               |
+| `language`                | string | Language for the game: `en`, `zh`                     | "en"                             |
 | `ttt-issue-title-pattern` | string | Tic-Tac-Toe game: regex for creating room Issue title | "^play\\s+tic[-\_]?tac[-\_]?toe" |
 | `ttt-label-prefix`        | string | Tic-Tac-Toe game: issue label name prefix             | "game-ttt-room-"                 |
 
