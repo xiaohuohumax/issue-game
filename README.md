@@ -36,7 +36,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Issue Game Action
-        uses: xiaohuohumax/issue-game
+        uses: xiaohuohumax/issue-game@v1
           # with:
           #   token: ${{ secrets.GITHUB_TOKEN }}
           #   language: "en"

@@ -34098,7 +34098,7 @@ class TicTacToeGame extends Game {
 
 
 ;// CONCATENATED MODULE: ./package.json
-const package_namespaceObject = {"i8":"0.0.1"};
+const package_namespaceObject = {"i8":"1.0.0"};
 ;// CONCATENATED MODULE: ./src/index.ts
 
 

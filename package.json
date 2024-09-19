@@ -1,6 +1,6 @@
 {
   "name": "issue-game",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A GitHub Action that allows you to play games in Issues",
   "private": true,
   "scripts": {
