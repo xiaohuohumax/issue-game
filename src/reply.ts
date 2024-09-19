@@ -18,12 +18,11 @@ export async function replyMessage({ message_type, issue_number, message, target
 
   if (target) {
     const target_body = target.body || '';
-    const quote_body = target_body.split('\n').map(line => `> ${line}`).join('\n');
     body = i18n.t('reply.body', {
       login: target.login,
       name: target.name,
       url: target.url,
-      body: quote_body,
+      body: '```\n' + target_body + '\n```\n',
       message: body
     });
   }

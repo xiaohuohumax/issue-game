@@ -110,7 +110,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
         }));
       }
       const row_letters = ['a', 'b', 'c'];
-      let [x, y] = match[1].toLocaleLowerCase().split(':');
+      let [x, y] = match[0].toLocaleLowerCase().split(':');
 
       let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
       if (isNaN(int_x) && !isNaN(int_y)) {
@@ -244,7 +244,8 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       .map(player => `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`)
       .join(' vs ');
 
-    const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(', ');
+    const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(' ');
+    const languages_line = LANGUAGES.map(c => `\`${c}\``).join(' ');
 
     const body_lines: string[] = [
       `<!-- ${JSON.stringify(this.meta)} -->`,
@@ -252,6 +253,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       `**${i18n.t('games.ttt.room.body.play_game_by_command')}**`,
       `- ${i18n.t('games.ttt.room.body.chess_command_description')}`,
       `- ${i18n.t('games.ttt.room.body.color_command_description', { colors: colors_line })}`,
+      `- ${i18n.t('games.ttt.room.body.language_command_description', { languages: languages_line })}`,
       `\n${i18n.t('games.ttt.room.body.status', { status: this.meta.status })}`,
       i18n.t('games.ttt.room.body.players', { players: player_line }),
     ];
@@ -311,7 +313,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
         const parser_key = key as keyof TicTacToeRoomCommandsParser;
         const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];
         if (!parser) {
-          errors.push(new Error(i18n.t('games.ttt.command.unknown', { origin })));
+          // errors.push(new Error(i18n.t('games.ttt.command.unknown', { origin })));
           continue;
         }
         try {
@@ -496,7 +498,7 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
     if (errors.length > 0) {
       await issue_api.createComment({
         issue_number,
-        body: errors.map(e => '+ ' + e.message).join('\n')
+        body: 'Warning:\n' + errors.map(e => '+ ' + e.message).join('\n')
       });
     }
 

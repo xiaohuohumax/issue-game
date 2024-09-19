@@ -24,7 +24,8 @@
           "welcome": "Welcome to play TicTacToe game!",
           "play_game_by_command": "Reply to the current issue with the following command to participate in the game:",
           "chess_command_description": "`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.",
-          "color_command_description": "`color:color_name` Set the piece color, selectable colors: {{colors}}.",
+          "color_command_description": "`color:color_name` Set the piece color, Selectable colors: {{colors}}.",
+          "language_command_description": "`language:language_name` Set the language, note: only the room creator can change the language. Selectable languages: {{languages}}.",
           "status": "`Status`: {{status}}",
           "players": "`Players`: {{players}}",
           "next_player": "`Next`: [{{login}}]({{url}}) {{chess_emoji}}",
@@ -46,6 +47,6 @@
     }
   },
   "reply": {
-    "body": "@{{login}} reply: [{{name}}]({{url}}) 'Click to view the original text'\n\n{{body}}\n\n{{message}}"
+    "body": "@{{login}} reply: [{{name}}]({{url}} 'Click to view the original text')\n\n{{body}}\n\n{{message}}"
   }
 }

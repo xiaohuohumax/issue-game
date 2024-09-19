@@ -33604,9 +33604,9 @@ const loadLanguages = instance.loadLanguages;
 
 
 ;// CONCATENATED MODULE: ./src/i18n/translation/en.json
-const en_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"TicTacToe","description":"TicTacToe Game","command":{"unknown":"`{{origin}}` error: Unknown command.","chess":{"unmatched":"`{{origin}}` error: `{{value}}` format error or out of range."},"color":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable colors."},"language":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable languages."}},"room":{"winner":{"tie":"Tie","win":"{{login}} wins!"},"body":{"welcome":"Welcome to play TicTacToe game!","play_game_by_command":"Reply to the current issue with the following command to participate in the game:","chess_command_description":"`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.","color_command_description":"`color:color_name` Set the piece color, selectable colors: {{colors}}.","status":"`Status`: {{status}}","players":"`Players`: {{players}}","next_player":"`Next`: [{{login}}]({{url}}) {{chess_emoji}}","steps":"`Steps`:","result":"`Result`: {{result}}"}},"reply":{"room_full":"The room is full, unable to join!","wait_opponent_move":"You have placed a piece at {{ox}}{{oy}}, please wait for the opponent\'s move.","position_occupied":"`{{login}}` has already placed a piece at {{ox}}{{oy}}, please choose again.","color_change_failed":"You are not in the room, unable to change piece color.","color_used":"`{{color}}` has already been used, please choose again.","game_ended":"The game has ended!","game_room_created":"Game room created: Click link [{{name}}]({{url}}) to join.","call_player_game_ended":"{{players}} The game has ended! {{result}}","language_change_failed":"Only the room owner can change the language."}}},"reply":{"body":"@{{login}} reply: [{{name}}]({{url}}) \'Click to view the original text\'\\n\\n{{body}}\\n\\n{{message}}"}}');
+const en_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"TicTacToe","description":"TicTacToe Game","command":{"unknown":"`{{origin}}` error: Unknown command.","chess":{"unmatched":"`{{origin}}` error: `{{value}}` format error or out of range."},"color":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable colors."},"language":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable languages."}},"room":{"winner":{"tie":"Tie","win":"{{login}} wins!"},"body":{"welcome":"Welcome to play TicTacToe game!","play_game_by_command":"Reply to the current issue with the following command to participate in the game:","chess_command_description":"`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.","color_command_description":"`color:color_name` Set the piece color, Selectable colors: {{colors}}.","language_command_description":"`language:language_name` Set the language, note: only the room creator can change the language. Selectable languages: {{languages}}.","status":"`Status`: {{status}}","players":"`Players`: {{players}}","next_player":"`Next`: [{{login}}]({{url}}) {{chess_emoji}}","steps":"`Steps`:","result":"`Result`: {{result}}"}},"reply":{"room_full":"The room is full, unable to join!","wait_opponent_move":"You have placed a piece at {{ox}}{{oy}}, please wait for the opponent\'s move.","position_occupied":"`{{login}}` has already placed a piece at {{ox}}{{oy}}, please choose again.","color_change_failed":"You are not in the room, unable to change piece color.","color_used":"`{{color}}` has already been used, please choose again.","game_ended":"The game has ended!","game_room_created":"Game room created: Click link [{{name}}]({{url}}) to join.","call_player_game_ended":"{{players}} The game has ended! {{result}}","language_change_failed":"Only the room owner can change the language."}}},"reply":{"body":"@{{login}} reply: [{{name}}]({{url}} \'Click to view the original text\')\\n\\n{{body}}\\n\\n{{message}}"}}');
 ;// CONCATENATED MODULE: ./src/i18n/translation/zh.json
-const zh_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"井字棋","description":"井字棋游戏","command":{"unknown":"`{{origin}}`异常：未知的指令。","chess":{"unmatched":"`{{origin}}`异常：`{{value}}`格式错误或者棋子超出棋盘范围。"},"color":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的颜色列表中。"},"language":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的语言列表中。"}},"room":{"winner":{"tie":"平局","win":"{{login}} 获胜！"},"body":{"welcome":"欢迎游玩井字棋游戏！","play_game_by_command":"使用以下命令回复当前 Issue 即可参与游戏：","chess_command_description":"`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。","color_command_description":"`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。","status":"`状态`：{{status}}","players":"`玩家`：{{players}}","next_player":"`下一步`：[{{login}}]({{url}}) {{chess_emoji}}","steps":"`步骤`：","result":"`结果`：{{result}}"}},"reply":{"room_full":"房间已满，无法加入！","wait_opponent_move":"你已经在 {{ox}}{{oy}} 处落子，请等待对手落子。","position_occupied":"`{{login}} 已经在 {{ox}}{{oy}} 处落子，请重新选择。","color_change_failed":"你不在房间中，无法更改棋子颜色。","color_used":"`{{color}}` 已经被使用，请重新选择。","game_ended":"游戏已经结束！","game_room_created":"游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。","call_player_game_ended":"{{players}} 游戏已经结束！{{result}}","language_change_failed":"只有房间创建者才能更改语言。"}}},"reply":{"body":"@{{login}} 回复：[{{name}}]({{url}}) \'点击查看原文\')\\n\\n{{body}}\\n\\n{{message}}"}}');
+const zh_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"井字棋","description":"井字棋游戏","command":{"unknown":"`{{origin}}`异常：未知的指令。","chess":{"unmatched":"`{{origin}}`异常：`{{value}}`格式错误或者棋子超出棋盘范围。"},"color":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的颜色列表中。"},"language":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的语言列表中。"}},"room":{"winner":{"tie":"平局","win":"{{login}} 获胜！"},"body":{"welcome":"欢迎游玩井字棋游戏！","play_game_by_command":"使用以下命令回复当前 Issue 即可参与游戏：","chess_command_description":"`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。","color_command_description":"`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。","language_command_description":"`language:language_name` 设置语言，注意：只有房间创建者可更改语言。可选语言：{{languages}}。","status":"`状态`：{{status}}","players":"`玩家`：{{players}}","next_player":"`下一步`：[{{login}}]({{url}}) {{chess_emoji}}","steps":"`步骤`：","result":"`结果`：{{result}}"}},"reply":{"room_full":"房间已满，无法加入！","wait_opponent_move":"你已经在 {{ox}}{{oy}} 处落子，请等待对手落子。","position_occupied":"`{{login}} 已经在 {{ox}}{{oy}} 处落子，请重新选择。","color_change_failed":"你不在房间中，无法更改棋子颜色。","color_used":"`{{color}}` 已经被使用，请重新选择。","game_ended":"游戏已经结束！","game_room_created":"游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。","call_player_game_ended":"{{players}} 游戏已经结束！{{result}}","language_change_failed":"只有房间创建者才能更改语言。"}}},"reply":{"body":"@{{login}} 回复：[{{name}}]({{url}} \'点击查看原文\')\\n\\n{{body}}\\n\\n{{message}}"}}');
 ;// CONCATENATED MODULE: ./src/i18n/index.ts
 
 
@@ -33631,12 +33631,11 @@ async function replyMessage({ message_type, issue_number, message, target }) {
     let body = `${message_type}: ${message}`;
     if (target) {
         const target_body = target.body || '';
-        const quote_body = target_body.split('\n').map(line => `> ${line}`).join('\n');
         body = i18n.t('reply.body', {
             login: target.login,
             name: target.name,
             url: target.url,
-            body: quote_body,
+            body: '```\n' + target_body + '\n```\n',
             message: body
         });
     }
@@ -33721,7 +33720,7 @@ class TicTacToeRoom extends Room {
                 }));
             }
             const row_letters = ['a', 'b', 'c'];
-            let [x, y] = match[1].toLocaleLowerCase().split(':');
+            let [x, y] = match[0].toLocaleLowerCase().split(':');
             let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
             if (isNaN(int_x) && !isNaN(int_y)) {
                 [int_x, int_y] = [int_y, int_x];
@@ -33844,13 +33843,15 @@ class TicTacToeRoom extends Room {
         const player_line = this.meta.players
             .map(player => `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`)
             .join(' vs ');
-        const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(', ');
+        const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(' ');
+        const languages_line = LANGUAGES.map(c => `\`${c}\``).join(' ');
         const body_lines = [
             `<!-- ${JSON.stringify(this.meta)} -->`,
             `## ${i18n.t('games.ttt.room.body.welcome')}`,
             `**${i18n.t('games.ttt.room.body.play_game_by_command')}**`,
             `- ${i18n.t('games.ttt.room.body.chess_command_description')}`,
             `- ${i18n.t('games.ttt.room.body.color_command_description', { colors: colors_line })}`,
+            `- ${i18n.t('games.ttt.room.body.language_command_description', { languages: languages_line })}`,
             `\n${i18n.t('games.ttt.room.body.status', { status: this.meta.status })}`,
             i18n.t('games.ttt.room.body.players', { players: player_line }),
         ];
@@ -33890,7 +33891,7 @@ class TicTacToeRoom extends Room {
                 const parser_key = key;
                 const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];
                 if (!parser) {
-                    errors.push(new Error(i18n.t('games.ttt.command.unknown', { origin })));
+                    // errors.push(new Error(i18n.t('games.ttt.command.unknown', { origin })));
                     continue;
                 }
                 try {
@@ -34040,7 +34041,7 @@ class TicTacToeGame extends Game {
         if (errors.length > 0) {
             await issue.createComment({
                 issue_number,
-                body: errors.map(e => '+ ' + e.message).join('\n')
+                body: 'Warning:\n' + errors.map(e => '+ ' + e.message).join('\n')
             });
         }
         const room = TicTacToeRoom.createEmptyRoom(this.options, create_player, command);

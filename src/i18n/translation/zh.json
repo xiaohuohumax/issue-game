@@ -25,6 +25,7 @@
           "play_game_by_command": "使用以下命令回复当前 Issue 即可参与游戏：",
           "chess_command_description": "`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。",
           "color_command_description": "`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。",
+          "language_command_description": "`language:language_name` 设置语言，注意：只有房间创建者可更改语言。可选语言：{{languages}}。",
           "status": "`状态`：{{status}}",
           "players": "`玩家`：{{players}}",
           "next_player": "`下一步`：[{{login}}]({{url}}) {{chess_emoji}}",
@@ -46,6 +47,6 @@
     }
   },
   "reply": {
-    "body": "@{{login}} 回复：[{{name}}]({{url}}) '点击查看原文')\n\n{{body}}\n\n{{message}}"
+    "body": "@{{login}} 回复：[{{name}}]({{url}} '点击查看原文')\n\n{{body}}\n\n{{message}}"
   }
 }
