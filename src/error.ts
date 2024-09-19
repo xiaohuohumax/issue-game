@@ -1,9 +1,9 @@
 import * as core from '@actions/core';
-import { ReplayMessageParams, replayMessage } from './replay';
+import { ReplyMessageParams, replyMessage } from './reply';
 
 export class IGError extends Error { }
 
-export interface ReplyMessageErrorOptions extends ReplayMessageParams { }
+export interface ReplyMessageErrorOptions extends ReplyMessageParams { }
 
 export class ReplyMessageError extends IGError {
   constructor(public options: ReplyMessageErrorOptions) {
@@ -15,5 +15,5 @@ export async function catchError(error: Error) {
   if (!(error instanceof ReplyMessageError)) {
     return core.setFailed(error);
   }
-  replayMessage(error.options);
+  replyMessage(error.options);
 }

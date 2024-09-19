@@ -16,11 +16,10 @@ export type RoomCommandsParser<T extends RoomCommands> = {
   [K in keyof T]: (value: string, origin: string) => T[K];
 };
 
-export abstract class Room<M extends Meta = Meta, O extends RoomOptions = RoomOptions, C extends RoomCommands = RoomCommands> {
+export abstract class Room<M extends Meta = Meta, O extends RoomOptions = RoomOptions> {
   constructor(protected meta: M, protected options: O) { }
   public abstract getIssueTitle(): string;
   public abstract getIssueBody(): string;
-  public abstract parseCommands(command?: string): [C, Error[]];
 }
 
 export abstract class Game<T extends GameOptions = GameOptions> {

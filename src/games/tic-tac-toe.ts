@@ -8,7 +8,8 @@ import {
 } from '../chess';
 import issue_api from '../api/issue';
 import { ReplyMessageError, catchError } from '../error';
-import { ReplayMessageParams, replayMessage } from '../replay';
+import { ReplyMessageParams, replyMessage } from '../reply';
+import i18n, { LANGUAGES, Language, changeLanguage } from '../i18n';
 
 type MetaStatus = 'init' | 'waiting' | 'playing' | 'end';
 
@@ -32,20 +33,18 @@ interface MetaStep {
 type MetaWinner = MetaPlayer | null | 'tie';
 
 interface TicTacToeMeta extends Meta {
+  language: Language | null;
   status: MetaStatus;
   players: MetaPlayer[];
   data: ArrayTable<MetaDataLogin, 3, 3>;
   steps: MetaStep[];
-  create_at: string | null;
+  create_at: string;
   winner: MetaWinner;
   create_time: string;
   update_time: string;
 }
 
-// todo add language command
-// type ChessLanguage = 'en' | 'zh';
-
-function getMessageParamsByComment(comment: IssueCommentCreatedEvent['comment'], message_params: ReplayMessageParams): ReplayMessageParams {
+function getMessageParamsByComment(comment: IssueCommentCreatedEvent['comment'], message_params: ReplyMessageParams): ReplyMessageParams {
   return {
     ...message_params,
     target: {
@@ -58,7 +57,7 @@ function getMessageParamsByComment(comment: IssueCommentCreatedEvent['comment'],
 }
 
 function throwReplyMessageError(issue_number: number, comment: IssueCommentCreatedEvent['comment'], message: string): never {
-  const message_params: ReplayMessageParams = getMessageParamsByComment(comment, {
+  const message_params: ReplyMessageParams = getMessageParamsByComment(comment, {
     message,
     issue_number,
     message_type: 'Error',
@@ -71,12 +70,19 @@ export interface TicTacToeRoomOptions extends RoomOptions { }
 export interface TicTacToeRoomCommands extends RoomCommands {
   chess?: CoordinatesWithOrigin;
   color?: ChessColor;
-  // language?: ChessLanguage;
+  language?: Language;
 }
 
 export type TicTacToeRoomCommandsParser = RoomCommandsParser<Required<TicTacToeRoomCommands>>;
 
-export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, TicTacToeRoomCommands> {
+export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
+
+  constructor(meta: TicTacToeMeta, options: TicTacToeRoomOptions) {
+    super(meta, options);
+    if (meta.language) {
+      changeLanguage(meta.language);
+    }
+  }
 
   public static readonly WIN_MAP: ArrayTable<Coordinates, 3, 8> = [
     // rows
@@ -98,7 +104,10 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     chess: (value: string, origin: string) => {
       const match = value.match(/^(([1-3]:[a-c])|([a-c]:[1-3]))$/ig);
       if (!match) {
-        throw new Error(`\`${origin}\` error: \`${value}\` format incorrect or the pieces are out of range.`);
+        throw new Error(i18n.t('games.ttt.command.chess.unmatched', {
+          origin,
+          value,
+        }));
       }
       const row_letters = ['a', 'b', 'c'];
       let [x, y] = match[1].toLocaleLowerCase().split(':');
@@ -112,14 +121,30 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     },
     color: (value: string, origin: string) => {
       if (!CHESS_COLORS.includes(value as ChessColor)) {
-        throw new Error(`\`${origin}\` error: \`${value}\` not in ${CHESS_COLORS.join(', ')}.`);
+        throw new Error(i18n.t('games.ttt.command.color.invalid', {
+          origin,
+          value
+        }));
       }
       return value as ChessColor;
+    },
+    language: (value: string, origin: string) => {
+      if (!LANGUAGES.includes(value as Language)) {
+        throw new Error(i18n.t('games.ttt.command.language.invalid', {
+          origin,
+          value
+        }));
+      }
+      return value as Language;
     }
   };
 
-  public static createEmptyRoom(options: TicTacToeRoomOptions, create_player: MetaPlayer): TicTacToeRoom {
+  public static createEmptyRoom(options: TicTacToeRoomOptions, create_player: MetaPlayer, command: TicTacToeRoomCommands): TicTacToeRoom {
+    if (command.color) {
+      create_player.chess_color = command.color;
+    }
     const meta: TicTacToeMeta = {
+      language: command.language || null,
       status: 'init',
       players: [create_player],
       data: [
@@ -133,6 +158,9 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
       create_time: new Date().toISOString(),
       update_time: new Date().toISOString()
     };
+    if (command.chess) {
+      meta.data[command.chess.x][command.chess.y] = create_player.login;
+    }
     return new TicTacToeRoom(meta, options);
   }
 
@@ -156,8 +184,8 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
   public getWinnerPrintInfo(): string {
     return this.meta.winner
       ? this.meta.winner === 'tie'
-        ? 'Tie'
-        : `${this.meta.winner.login} wins`
+        ? i18n.t('games.ttt.room.winner.tie')
+        : i18n.t('games.ttt.room.winner.win', { winner: this.meta.winner.login })
       : '';
   }
 
@@ -198,7 +226,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
 
   public getIssueTitle(): string {
     const titles: string[] = [
-      this.options.name,
+      i18n.t('games.ttt.name'),
       this.meta.status
     ];
     const players = this.meta.players;
@@ -216,22 +244,28 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
       .map(player => `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`)
       .join(' vs ');
 
+    const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(', ');
+
     const body_lines: string[] = [
       `<!-- ${JSON.stringify(this.meta)} -->`,
-      `# Welcome to the ${this.options.name} game!`,
-      '**Use the following commands in the comments of this issue to play the game:**',
-      '- `chess:x:y` to place your chess piece at position x,y',
-      '  _e.g. `chess:1:a` or `chess:a:1` means the first row and first column._',
-      '- `color:color_name` to change your chess piece color, available colors:' + CHESS_COLORS.map(c => `\`${c}\``).join(', '),
-      '  _e.g. `color:red` to change your chess piece to red color._',
-      `\n\`Status\`: ${this.meta.status}`,
-      `\`Player\`: ${player_line}`,
+      `## ${i18n.t('games.ttt.room.body.welcome')}`,
+      `**${i18n.t('games.ttt.room.body.play_game_by_command')}**`,
+      `- ${i18n.t('games.ttt.room.body.chess_command_description')}`,
+      `- ${i18n.t('games.ttt.room.body.color_command_description', { colors: colors_line })}`,
+      `\n${i18n.t('games.ttt.room.body.status', { status: this.meta.status })}`,
+      i18n.t('games.ttt.room.body.players', { players: player_line }),
     ];
 
     const next_player = this.getNextPlayer();
     if (next_player) {
       const chess_emoji = chessColorToEmoji(next_player.chess_color);
-      body_lines.push(`\`Next\`: [${next_player.login}](${next_player.url}) ${chess_emoji}`);
+      body_lines.push(
+        i18n.t('games.ttt.room.body.next_player', {
+          login: next_player.login,
+          url: next_player.url,
+          chess_emoji
+        })
+      );
     }
 
     const table = this.getChessColorTable();
@@ -246,7 +280,8 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     if (this.meta.steps.length > 0) {
       const chess_color_map = this.getLoginChessColorMap();
       body_lines.push(
-        '\n`Steps`:',
+        '',
+        i18n.t('games.ttt.room.body.steps'),
         ...this.meta.steps.map(step => {
           const { login, coordinates, comment: { url } } = step;
           const chess_emoji = chessColorToEmoji(chess_color_map.get(step.login));
@@ -257,13 +292,17 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
 
     const winner_line = this.getWinnerPrintInfo();
     if (winner_line !== '') {
-      body_lines.push(`\n\`Result\`: ${winner_line}`);
+      body_lines.push(
+        i18n.t('games.ttt.room.body.result', {
+          result: winner_line
+        })
+      );
     }
 
     return body_lines.join('\n');
   }
 
-  public parseCommands(command_body?: string): [TicTacToeRoomCommands, Error[]] {
+  public static parseCommands(command_body?: string): [TicTacToeRoomCommands, Error[]] {
     const commands: TicTacToeRoomCommands = {};
     const errors: Error[] = [];
     if (command_body) {
@@ -272,7 +311,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
         const parser_key = key as keyof TicTacToeRoomCommandsParser;
         const parser = TicTacToeRoom.COMMAND_PARSER_MAP[parser_key];
         if (!parser) {
-          errors.push(new Error(`\`${origin}\` error: Unknown command.`));
+          errors.push(new Error(i18n.t('games.ttt.command.unknown', { origin })));
           continue;
         }
         try {
@@ -312,7 +351,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     let player = this.getPlayerByLogin(comment.user.login);
     if (!player) {
       if (this.meta.players.length >= 2) {
-        throwReplyMessageError(issue_number, comment, 'Game room is full, cannot join!');
+        throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_full'));
       }
       const new_player: MetaPlayer = {
         login: comment.user.login,
@@ -327,7 +366,10 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     if (last_step && last_step.login === player.login) {
       throwReplyMessageError(
         issue_number, comment,
-        `You have already placed chess piece at ${last_step.coordinates.ox},${last_step.coordinates.oy}, please wait for your opponent's move.`
+        i18n.t('games.ttt.reply.wait_opponent_move', {
+          ox: last_step.coordinates.ox,
+          oy: last_step.coordinates.oy
+        })
       );
     }
 
@@ -335,7 +377,11 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     if (before_login) {
       throwReplyMessageError(
         issue_number, comment,
-        `${coordinates.ox},${coordinates.oy} already has a chess piece by ${before_login}, please choose another position.`
+        i18n.t('games.ttt.reply.position_occupied', {
+          login: before_login,
+          ox: coordinates.ox,
+          oy: coordinates.oy
+        })
       );
     }
 
@@ -359,18 +405,33 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
     if (!player) {
       throwReplyMessageError(
         issue_number, comment,
-        'You are not in the game room, cannot change your color!');
+        i18n.t('games.ttt.reply.color_change_failed')
+      );
     }
 
     if (CHESS_COLORS.includes(color)) {
       const player_chess_colors = this.meta.players.map(p => p.chess_color);
       if (player_chess_colors.includes(color)) {
-        const eg = CHESS_COLORS.map(c => `\`${c}\``).join(', ');
         throwReplyMessageError(
           issue_number, comment,
-          `\`${color}\` chess piece has been used, please choose another color.\ne.g. ${eg}`);
+          i18n.t('games.ttt.reply.color_used', { color })
+        );
       }
       player.chess_color = color;
+    }
+  }
+
+  public async parseLanguageCommand(issue_number: number, { language }: TicTacToeRoomCommands, comment: IssueCommentCreatedEvent['comment']): Promise<void> {
+    if (language) {
+      const { user: { login } } = comment;
+      if (login !== this.meta.create_at) {
+        throwReplyMessageError(
+          issue_number, comment,
+          i18n.t('games.ttt.reply.language_change_failed')
+        );
+      }
+      this.meta.language = language;
+      changeLanguage(language);
     }
   }
 
@@ -388,7 +449,10 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions, Tic
       const call_all_players = this.meta.players.map(player => '@' + player.login).join(' ');
       await issue_api.createComment({
         issue_number,
-        body: `${call_all_players} Game has ended! ${this.getWinnerPrintInfo()}`
+        body: i18n.t('games.ttt.reply.call_player_game_ended', {
+          players: call_all_players,
+          result: this.getWinnerPrintInfo()
+        })
       });
     }
   }
@@ -417,18 +481,26 @@ export interface TicTacToeGameOptions extends GameOptions {
 export class TicTacToeGame extends Game<TicTacToeGameOptions> {
 
   public async handleIssueOpenedEvent(payload: IssuesOpenedEvent): Promise<void> {
-    const { title, user, number: issue_number } = payload.issue;
+    const { title, user, number: issue_number, body: issue_body } = payload.issue;
     const title_match = title.match(new RegExp(this.options.issue_title_pattern, 'ig'));
     if (!title_match) {
       return;
     }
-
     const create_player: MetaPlayer = {
       login: user.login,
       url: user.html_url,
       chess_color: TicTacToeRoom.getRandomChessColor()
     };
-    const room = TicTacToeRoom.createEmptyRoom(this.options, create_player);
+
+    const [command, errors] = TicTacToeRoom.parseCommands(issue_body);
+    if (errors.length > 0) {
+      await issue_api.createComment({
+        issue_number,
+        body: errors.map(e => '+ ' + e.message).join('\n')
+      });
+    }
+
+    const room = TicTacToeRoom.createEmptyRoom(this.options, create_player, command);
 
     const game_issue = await issue_api.createIssue({
       title: room.getIssueTitle(),
@@ -438,7 +510,10 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
 
     await issue_api.createComment({
       issue_number,
-      body: `Game room created: [${game_issue.title}](${game_issue.html_url}) click to join.`
+      body: i18n.t('games.ttt.reply.game_room_created', {
+        name: game_issue.title,
+        url: game_issue.html_url
+      })
     });
 
     await issue_api.updateIssue({ issue_number, state: 'closed' });
@@ -453,10 +528,10 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
 
     const room = TicTacToeRoom.createRoomByIssueBody(this.options, issue_body);
     if (room.hasGameEnded()) {
-      throwReplyMessageError(issue_number, comment, 'Game has ended!');
+      throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.game_ended'));
     }
 
-    const [command, errors] = room.parseCommands(comment.body);
+    const [command, errors] = TicTacToeRoom.parseCommands(comment.body);
     if (errors.length > 0) {
       const error_messages = errors.map(e => '+ ' + e.message).join('\n');
       const message_params = getMessageParamsByComment(comment, {
@@ -464,8 +539,9 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
         message_type: 'Warning',
         issue_number
       });
-      replayMessage(message_params);
+      replyMessage(message_params);
     }
+    await room.parseLanguageCommand(issue_number, command, comment).catch(catchError);
     await room.parseCoordinatesCommand(issue_number, command, comment).catch(catchError);
     await room.parseColorCommand(issue_number, command, comment).catch(catchError);
 

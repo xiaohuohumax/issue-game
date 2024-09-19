@@ -7,6 +7,10 @@ inputs:
     required: true
     description: "The Github token for authentication"
     default: ${{ github.token }}
+  language:
+    required: false
+    description: "Language for the game"
+    default: "en"
   ttt-issue-title-pattern:
     required: false
     description: "Tic-Tac-Toe game: create room issue title pattern"

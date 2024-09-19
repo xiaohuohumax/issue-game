@@ -1,0 +1,51 @@
+{
+  "games": {
+    "ttt": {
+      "name": "TicTacToe",
+      "description": "TicTacToe Game",
+      "command": {
+        "unknown": "`{{origin}}` error: Unknown command.",
+        "chess": {
+          "unmatched": "`{{origin}}` error: `{{value}}` format error or out of range."
+        },
+        "color": {
+          "invalid": "`{{origin}}` error: `{{value}}` is not in the list of selectable colors."
+        },
+        "language": {
+          "invalid": "`{{origin}}` error: `{{value}}` is not in the list of selectable languages."
+        }
+      },
+      "room": {
+        "winner": {
+          "tie": "Tie",
+          "win": "{{login}} wins!"
+        },
+        "body": {
+          "welcome": "Welcome to play TicTacToe game!",
+          "play_game_by_command": "Reply to the current issue with the following command to participate in the game:",
+          "chess_command_description": "`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.",
+          "color_command_description": "`color:color_name` Set the piece color, selectable colors: {{colors}}.",
+          "status": "`Status`: {{status}}",
+          "players": "`Players`: {{players}}",
+          "next_player": "`Next`: [{{login}}]({{url}}) {{chess_emoji}}",
+          "steps": "`Steps`:",
+          "result": "`Result`: {{result}}"
+        }
+      },
+      "reply": {
+        "room_full": "The room is full, unable to join!",
+        "wait_opponent_move": "You have placed a piece at {{ox}}{{oy}}, please wait for the opponent's move.",
+        "position_occupied": "`{{login}}` has already placed a piece at {{ox}}{{oy}}, please choose again.",
+        "color_change_failed": "You are not in the room, unable to change piece color.",
+        "color_used": "`{{color}}` has already been used, please choose again.",
+        "game_ended": "The game has ended!",
+        "game_room_created": "Game room created: Click link [{{name}}]({{url}}) to join.",
+        "call_player_game_ended": "{{players}} The game has ended! {{result}}",
+        "language_change_failed": "Only the room owner can change the language."
+      }
+    }
+  },
+  "reply": {
+    "body": "@{{login}} reply: [{{name}}]({{url}}) 'Click to view the original text'\n\n{{body}}\n\n{{message}}"
+  }
+}
