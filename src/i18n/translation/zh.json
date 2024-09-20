@@ -26,10 +26,11 @@
         "body": {
           "welcome": "欢迎游玩井字棋游戏！",
           "play_game_by_command": "使用以下命令回复当前 Issue 即可参与游戏：",
+          "only_creator_can_use": "只有房间创建者可以使用此命令。",
           "chess_command_description": "`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。",
           "color_command_description": "`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。",
-          "language_command_description": "`language:language_name` 设置语言，注意：只有房间创建者可更改。可选语言：{{languages}}。",
-          "robot_command_description": "`robot:mode` 设置机器人，注意：只有房间创建者可更改。`robot:add` 添加机器人，`robot:remove` 删除机器人。",
+          "language_command_description": "`language:language_name` 设置语言。可选语言：{{languages}}。",
+          "robot_command_description": "`robot:mode` 设置机器人。`robot:add` 添加机器人，`robot:remove` 删除机器人。",
           "status": "`状态`：{{status}}",
           "players": "`玩家`：{{players}}",
           "next_player": "`下一步`：{{next_player}}",

@@ -81,6 +81,22 @@ function throwReplyMessageError(issue_number: number, comment: IssueCommentCreat
   throw new ReplyMessageError(message_params);
 }
 
+function coordinatesToCoordinatesWithOrigin(coordinates: Coordinates): CoordinatesWithOrigin {
+  return {
+    x: coordinates.x,
+    y: coordinates.y,
+    ox: coordinates.x + '',
+    oy: ROW_LETTERS[coordinates.y]
+  };
+}
+
+function getRandomChessColor(excludes: ChessColor[] = []): ChessColor {
+  const all_chess_colors = CHESS_COLORS
+    .filter(color => !excludes.includes(color));
+  const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
+  return all_chess_colors[random_index % all_chess_colors.length];
+}
+
 export interface TicTacToeRoomOptions extends RoomOptions { }
 
 export interface TicTacToeRoomCommands extends RoomCommands {
@@ -164,7 +180,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     }
   };
 
-  public static createEmptyRoom(options: TicTacToeRoomOptions, create_player: MetaPlayer, command: TicTacToeRoomCommands): TicTacToeRoom {
+  public static async createEmptyRoom(options: TicTacToeRoomOptions, create_player: MetaPlayer, command: TicTacToeRoomCommands): Promise<TicTacToeRoom> {
     if (command.color) {
       create_player.chess_color = command.color;
     }
@@ -183,18 +199,20 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       create_time: new Date().toISOString(),
       update_time: new Date().toISOString()
     };
+    const room = new TicTacToeRoom(meta, options);
     if (command.chess) {
-      meta.data[command.chess.x][command.chess.y] = create_player.chess_color;
-      meta.steps.push({
-        login: create_player.login,
-        coordinates: command.chess,
-      });
+      room.updateDataAndStep(command.chess, create_player, undefined);
     }
     if (command.robot === 'add') {
       const robot_player: MetaPlayer = TicTacToeRoom.createRobotPlayer([create_player.chess_color]);
       meta.players.push(robot_player);
+      if (command.chess) {
+        const move = await room.robotMove(true, create_player.chess_color, robot_player.chess_color);
+        const cwo = coordinatesToCoordinatesWithOrigin(move.coordinates!);
+        room.updateDataAndStep(cwo, robot_player, undefined);
+      }
     }
-    return new TicTacToeRoom(meta, options);
+    return room;
   }
 
   public static createRoomByIssueBody(options: TicTacToeRoomOptions, body?: string): TicTacToeRoom {
@@ -205,13 +223,6 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       }
     }
     throw new Error('Game meta data not found.');
-  }
-
-  public static getRandomChessColor(excludes: ChessColor[] = []): ChessColor {
-    const all_chess_colors = CHESS_COLORS
-      .filter(color => !excludes.includes(color));
-    const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
-    return all_chess_colors[random_index % all_chess_colors.length];
   }
 
   public getWinnerPrintInfo(): string {
@@ -275,10 +286,11 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
         ? `${player.login} ${ROBOT_EMOJI}${chessColorToEmoji(player.chess_color)}`
         : `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`
       )
-      .join(' vs ');
+      .join(' `vs` ');
 
     const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(' ');
     const languages_line = LANGUAGES.map(c => `\`${c}\``).join(' ');
+    const only_creator = `<span title="${i18n.t('games.ttt.room.body.only_creator_can_use')}">🚧</span>`;
 
     const body_lines: string[] = [
       `<!-- ${JSON.stringify(this.meta)} -->`,
@@ -286,7 +298,8 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       `**${i18n.t('games.ttt.room.body.play_game_by_command')}**`,
       `- ${i18n.t('games.ttt.room.body.chess_command_description')}`,
       `- ${i18n.t('games.ttt.room.body.color_command_description', { colors: colors_line })}`,
-      `- ${i18n.t('games.ttt.room.body.language_command_description', { languages: languages_line })}`,
+      `- ${only_creator}${i18n.t('games.ttt.room.body.language_command_description', { languages: languages_line })}`,
+      `- ${only_creator}${i18n.t('games.ttt.room.body.robot_command_description')}`,
       `\n${i18n.t('games.ttt.room.body.status', { status: this.meta.status })}`,
       i18n.t('games.ttt.room.body.players', { players: player_line }),
     ];
@@ -369,7 +382,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
   public static createRobotPlayer(excludes: ChessColor[]): MetaPlayer {
     return {
       login: ROBOT_LOGIN,
-      chess_color: TicTacToeRoom.getRandomChessColor(excludes),
+      chess_color: getRandomChessColor(excludes),
       robot: true,
     };
   }
@@ -406,22 +419,56 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     });
   }
 
-  public coordinatesToCoordinatesWithOrigin(coordinates: Coordinates): CoordinatesWithOrigin {
-    return {
-      x: coordinates.x,
-      y: coordinates.y,
-      ox: coordinates.x + '',
-      oy: ROW_LETTERS[coordinates.y]
-    };
+  public async updateStatus(issue_number: number): Promise<void> {
+    const player_count = this.meta.players.length;
+    if (player_count === 0) {
+      this.meta.status = 'init';
+    } else if (player_count === 1) {
+      this.meta.status = 'waiting';
+    } else if (player_count === 2) {
+      this.meta.status = 'playing';
+    }
+    if (this.meta.winner) {
+      this.meta.status = 'end';
+      const call_all_players = this.meta.players
+        .filter(player => !player.robot)
+        .map(player => '@' + player.login).join(' ');
+      await issue_api.createComment({
+        issue_number,
+        body: i18n.t('games.ttt.reply.call_player_game_ended', {
+          players: call_all_players,
+          result: this.getWinnerPrintInfo()
+        })
+      });
+    }
   }
 
-  public robotMove = async (is_max: boolean, player_color: ChessColor, robot_color: ChessColor, depth: number = 0, max_depth: number = 3): Promise<RobotMove> => {
+  public hasGameEnded(): boolean {
+    return this.meta.status === 'end';
+  }
+
+  public getRobotPlayer(): MetaPlayer | null {
+    return this.meta.players.find(player => player.robot) || null;
+  }
+
+  public async updateRoom(issue_number: number): Promise<void> {
+    this.meta.update_time = new Date().toISOString();
+    await issue_api.updateIssue({
+      issue_number,
+      title: this.getIssueTitle(),
+      body: this.getIssueBody(),
+      state: this.hasGameEnded() ? 'closed' : 'open'
+    });
+  }
+
+  public robotMove = async (is_max: boolean, player_color: ChessColor, robot_color: ChessColor, depth: number = 0, max_depth: number = 5): Promise<RobotMove> => {
+    // minimax and random move
     await this.updateWinner();
     const winner = this.meta.winner;
     if (winner === 'tie' || depth >= max_depth) {
       return { score: 0 };
     } else if (winner) {
-      return { score: (winner.robot ? 10000 : -10000) / depth };
+      return { score: Math.floor((winner.robot ? 10000 : -10000) / depth) };
     }
     const data = this.meta.data;
     let best_score = is_max ? -Infinity : Infinity;
@@ -459,7 +506,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       const new_player: MetaPlayer = {
         login: comment.user.login,
         url: comment.user.html_url,
-        chess_color: TicTacToeRoom.getRandomChessColor(this.meta.players.map(p => p.chess_color))
+        chess_color: getRandomChessColor(this.meta.players.map(p => p.chess_color))
       };
       this.meta.players.push(new_player);
       player = new_player;
@@ -496,8 +543,8 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       await this.updateWinner();
       const winner = this.meta.winner;
       if (winner === null) {
-        const move = await this.robotMove(true, player.chess_color, robot_player.chess_color, 0, 5);
-        const cwo = this.coordinatesToCoordinatesWithOrigin(move.coordinates!);
+        const move = await this.robotMove(true, player.chess_color, robot_player.chess_color);
+        const cwo = coordinatesToCoordinatesWithOrigin(move.coordinates!);
         this.updateDataAndStep(cwo, robot_player, undefined);
       }
     }
@@ -583,46 +630,6 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     }
   }
 
-  public async updateStatus(issue_number: number): Promise<void> {
-    const player_count = this.meta.players.length;
-    if (player_count === 0) {
-      this.meta.status = 'init';
-    } else if (player_count === 1) {
-      this.meta.status = 'waiting';
-    } else if (player_count === 2) {
-      this.meta.status = 'playing';
-    }
-    if (this.meta.winner) {
-      this.meta.status = 'end';
-      const call_all_players = this.meta.players.map(player => '@' + player.login).join(' ');
-      await issue_api.createComment({
-        issue_number,
-        body: i18n.t('games.ttt.reply.call_player_game_ended', {
-          players: call_all_players,
-          result: this.getWinnerPrintInfo()
-        })
-      });
-    }
-  }
-
-  public hasGameEnded(): boolean {
-    return this.meta.status === 'end';
-  }
-
-  public getRobotPlayer(): MetaPlayer | null {
-    return this.meta.players.find(player => player.robot) || null;
-  }
-
-  public async updateRoom(issue_number: number): Promise<void> {
-    this.meta.update_time = new Date().toISOString();
-    await issue_api.updateIssue({
-      issue_number,
-      title: this.getIssueTitle(),
-      body: this.getIssueBody(),
-      state: this.hasGameEnded() ? 'closed' : 'open'
-    });
-  }
-
 }
 
 export interface TicTacToeGameOptions extends GameOptions {
@@ -641,7 +648,7 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
     const create_player: MetaPlayer = {
       login: user.login,
       url: user.html_url,
-      chess_color: TicTacToeRoom.getRandomChessColor(),
+      chess_color: getRandomChessColor(),
     };
 
     const [command, errors] = TicTacToeRoom.parseCommands(issue_body);
@@ -652,7 +659,7 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
       });
     }
 
-    const room = TicTacToeRoom.createEmptyRoom(this.options, create_player, command);
+    const room = await TicTacToeRoom.createEmptyRoom(this.options, create_player, command);
 
     const game_issue = await issue_api.createIssue({
       title: room.getIssueTitle(),
@@ -694,9 +701,11 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
       });
       replyMessage(message_params);
     }
+
     await room.parseLanguageCommand(issue_number, command, comment).catch(catchError);
     await room.parseCoordinatesCommand(issue_number, command, comment).catch(catchError);
     await room.parseColorCommand(issue_number, command, comment).catch(catchError);
+    await room.parseRobotCommand(issue_number, command, comment).catch(catchError);
 
     await room.updateWinner();
     await room.updateStatus(issue_number);

@@ -31160,8 +31160,22 @@ const CHESS_COLORS = [
     'orange',
     'red'
 ];
+const CHESS_EMOJIS = {
+    'black': '⚫',
+    'white': '⚪',
+    'brown': '🟤',
+    'purple': '🟣',
+    'green': '🟢',
+    'yellow': '🟡',
+    'orange': '🟠',
+    'red': '🔴'
+};
 function chessColorToEmoji(color) {
-    return color ? `:${color}_circle:` : '';
+    if (color) {
+        const emoji = CHESS_EMOJIS[color];
+        return emoji ? emoji : '';
+    }
+    return '';
 }
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
@@ -33604,9 +33618,9 @@ const loadLanguages = instance.loadLanguages;
 
 
 ;// CONCATENATED MODULE: ./src/i18n/translation/en.json
-const en_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"TicTacToe","description":"TicTacToe Game","command":{"unknown":"`{{origin}}` error: Unknown command.","chess":{"unmatched":"`{{origin}}` error: `{{value}}` format error or out of range."},"color":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable colors."},"language":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable languages."},"robot":{"invalid":"`{{origin}}` error: `{{value}}` is not a valid robot operation."}},"room":{"winner":{"tie":"Tie!","win":"{{winner}} wins!"},"body":{"welcome":"Welcome to play TicTacToe game!","play_game_by_command":"Reply to the current issue with the following command to participate in the game:","chess_command_description":"`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.","color_command_description":"`color:color_name` Set the piece color, Selectable colors: {{colors}}.","language_command_description":"`language:language_name` Set the language, note: only the room creator can change. Selectable languages: {{languages}}.","robot_command_description":"`robot:mode` Set the robot mode, note: only the room creator can change. `robot:add` Join the robot, `robot:remove` Remove the robot.","status":"`Status`: {{status}}","players":"`Players`: {{players}}","next_player":"`Next`: {{next_player}}","steps":"`Steps`:","result":"`Result`: {{result}}"}},"reply":{"room_full":"The room is full, unable to join!","wait_opponent_move":"You have placed a piece at {{ox}}:{{oy}}, please wait for the opponent\'s move.","position_occupied":"`{{login}}` has already placed a piece at {{ox}}:{{oy}}, please choose again.","color_change_failed":"You are not in the room, unable to change piece color.","color_used":"`{{color}}` has already been used, please choose again.","game_ended":"The game has ended!","game_room_created":"@{{login}} Game room created: Click link [{{name}}]({{url}}) to join.","call_player_game_ended":"{{players}} The game has ended! {{result}}","language_change_failed":"Only the room owner can change the language.","room_has_robot_add_failed":"The room already has a robot, no need to add.","room_full_add_robot_failed":"The room is full, unable to add a robot.","game_start_remove_robot_failed":"The game has started, unable to remove the robot."}}},"reply":{"body":"@{{login}} reply: [{{name}}]({{url}} \'Click to view the original text\')\\n\\n{{body}}\\n\\n{{message}}"}}');
+const en_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"TicTacToe","description":"TicTacToe Game","command":{"unknown":"`{{origin}}` error: Unknown command.","chess":{"unmatched":"`{{origin}}` error: `{{value}}` format error or out of range."},"color":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable colors."},"language":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable languages."},"robot":{"invalid":"`{{origin}}` error: `{{value}}` is not a valid robot operation."}},"room":{"winner":{"tie":"Tie!","win":"{{winner}} wins!"},"body":{"welcome":"Welcome to play TicTacToe game!","play_game_by_command":"Reply to the current issue with the following command to participate in the game:","only_creator_can_use":"Only the room owner can use this command.","chess_command_description":"`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.","color_command_description":"`color:color_name` Set the piece color, Selectable colors: {{colors}}.","language_command_description":"`language:language_name` Set the language. Selectable languages: {{languages}}.","robot_command_description":"`robot:mode` Set the robot mode. `robot:add` Join the robot, `robot:remove` Remove the robot.","status":"`Status`: {{status}}","players":"`Players`: {{players}}","next_player":"`Next`: {{next_player}}","steps":"`Steps`:","result":"`Result`: {{result}}"}},"reply":{"room_full":"The room is full, unable to join!","wait_opponent_move":"You have placed a piece at {{ox}}:{{oy}}, please wait for the opponent\'s move.","position_occupied":"`{{login}}` has already placed a piece at {{ox}}:{{oy}}, please choose again.","color_change_failed":"You are not in the room, unable to change piece color.","color_used":"`{{color}}` has already been used, please choose again.","game_ended":"The game has ended!","game_room_created":"@{{login}} Game room created: Click link [{{name}}]({{url}}) to join.","call_player_game_ended":"{{players}} The game has ended! {{result}}","language_change_failed":"Only the room owner can change the language.","room_has_robot_add_failed":"The room already has a robot, no need to add.","room_full_add_robot_failed":"The room is full, unable to add a robot.","game_start_remove_robot_failed":"The game has started, unable to remove the robot."}}},"reply":{"body":"@{{login}} reply: [{{name}}]({{url}} \'Click to view the original text\')\\n\\n{{body}}\\n\\n{{message}}"}}');
 ;// CONCATENATED MODULE: ./src/i18n/translation/zh.json
-const zh_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"井字棋","description":"井字棋游戏","command":{"unknown":"`{{origin}}`异常：未知的指令。","chess":{"unmatched":"`{{origin}}`异常：`{{value}}`格式错误或者棋子超出棋盘范围。"},"color":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的颜色列表中。"},"language":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的语言列表中。"},"robot":{"invalid":"`{{origin}}`异常：`{{value}}`不是有效的机器人操作。"}},"room":{"winner":{"tie":"平局!","win":"{{winner}} 获胜！"},"body":{"welcome":"欢迎游玩井字棋游戏！","play_game_by_command":"使用以下命令回复当前 Issue 即可参与游戏：","chess_command_description":"`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。","color_command_description":"`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。","language_command_description":"`language:language_name` 设置语言，注意：只有房间创建者可更改。可选语言：{{languages}}。","robot_command_description":"`robot:mode` 设置机器人，注意：只有房间创建者可更改。`robot:add` 添加机器人，`robot:remove` 删除机器人。","status":"`状态`：{{status}}","players":"`玩家`：{{players}}","next_player":"`下一步`：{{next_player}}","steps":"`步骤`：","result":"`结果`：{{result}}"}},"reply":{"room_full":"房间已满，无法加入！","wait_opponent_move":"你已经在 {{ox}}:{{oy}} 处落子，请等待对手落子。","position_occupied":"`{{login}} 已经在 {{ox}}:{{oy}} 处落子，请重新选择。","color_change_failed":"你不在房间中，无法更改棋子颜色。","color_used":"`{{color}}` 已经被使用，请重新选择。","game_ended":"游戏已经结束！","game_room_created":"@{{login}} 游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。","call_player_game_ended":"{{players}} 游戏已经结束！{{result}}","language_change_failed":"只有房间创建者才能更改语言。","room_has_robot_add_failed":"房间中已经有机器人，无需添加。","room_full_add_robot_failed":"房间已满，无法添加机器人。","game_start_remove_robot_failed":"游戏已经开始，无法删除机器人。"}}},"reply":{"body":"@{{login}} 回复：[{{name}}]({{url}} \'点击查看原文\')\\n\\n{{body}}\\n\\n{{message}}"}}');
+const zh_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"井字棋","description":"井字棋游戏","command":{"unknown":"`{{origin}}`异常：未知的指令。","chess":{"unmatched":"`{{origin}}`异常：`{{value}}`格式错误或者棋子超出棋盘范围。"},"color":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的颜色列表中。"},"language":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的语言列表中。"},"robot":{"invalid":"`{{origin}}`异常：`{{value}}`不是有效的机器人操作。"}},"room":{"winner":{"tie":"平局!","win":"{{winner}} 获胜！"},"body":{"welcome":"欢迎游玩井字棋游戏！","play_game_by_command":"使用以下命令回复当前 Issue 即可参与游戏：","only_creator_can_use":"只有房间创建者可以使用此命令。","chess_command_description":"`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。","color_command_description":"`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。","language_command_description":"`language:language_name` 设置语言。可选语言：{{languages}}。","robot_command_description":"`robot:mode` 设置机器人。`robot:add` 添加机器人，`robot:remove` 删除机器人。","status":"`状态`：{{status}}","players":"`玩家`：{{players}}","next_player":"`下一步`：{{next_player}}","steps":"`步骤`：","result":"`结果`：{{result}}"}},"reply":{"room_full":"房间已满，无法加入！","wait_opponent_move":"你已经在 {{ox}}:{{oy}} 处落子，请等待对手落子。","position_occupied":"`{{login}} 已经在 {{ox}}:{{oy}} 处落子，请重新选择。","color_change_failed":"你不在房间中，无法更改棋子颜色。","color_used":"`{{color}}` 已经被使用，请重新选择。","game_ended":"游戏已经结束！","game_room_created":"@{{login}} 游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。","call_player_game_ended":"{{players}} 游戏已经结束！{{result}}","language_change_failed":"只有房间创建者才能更改语言。","room_has_robot_add_failed":"房间中已经有机器人，无需添加。","room_full_add_robot_failed":"房间已满，无法添加机器人。","game_start_remove_robot_failed":"游戏已经开始，无法删除机器人。"}}},"reply":{"body":"@{{login}} 回复：[{{name}}]({{url}} \'点击查看原文\')\\n\\n{{body}}\\n\\n{{message}}"}}');
 ;// CONCATENATED MODULE: ./src/i18n/index.ts
 
 
@@ -33694,6 +33708,19 @@ function throwReplyMessageError(issue_number, comment, message) {
     });
     throw new ReplyMessageError(message_params);
 }
+function coordinatesToCoordinatesWithOrigin(coordinates) {
+    return {
+        x: coordinates.x,
+        y: coordinates.y,
+        ox: coordinates.x + '',
+        oy: ROW_LETTERS[coordinates.y]
+    };
+}
+function getRandomChessColor(excludes = []) {
+    const all_chess_colors = CHESS_COLORS.filter(color => !excludes.includes(color));
+    const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
+    return all_chess_colors[random_index % all_chess_colors.length];
+}
 class TicTacToeRoom extends Room {
     constructor(meta, options) {
         super(meta, options);
@@ -33759,7 +33786,7 @@ class TicTacToeRoom extends Room {
             return value;
         }
     };
-    static createEmptyRoom(options, create_player, command) {
+    static async createEmptyRoom(options, create_player, command) {
         if (command.color) {
             create_player.chess_color = command.color;
         }
@@ -33778,18 +33805,20 @@ class TicTacToeRoom extends Room {
             create_time: new Date().toISOString(),
             update_time: new Date().toISOString()
         };
+        const room = new TicTacToeRoom(meta, options);
         if (command.chess) {
-            meta.data[command.chess.x][command.chess.y] = create_player.chess_color;
-            meta.steps.push({
-                login: create_player.login,
-                coordinates: command.chess,
-            });
+            room.updateDataAndStep(command.chess, create_player, undefined);
         }
         if (command.robot === 'add') {
             const robot_player = TicTacToeRoom.createRobotPlayer([create_player.chess_color]);
             meta.players.push(robot_player);
+            if (command.chess) {
+                const move = await room.robotMove(true, create_player.chess_color, robot_player.chess_color);
+                const cwo = coordinatesToCoordinatesWithOrigin(move.coordinates);
+                room.updateDataAndStep(cwo, robot_player, undefined);
+            }
         }
-        return new TicTacToeRoom(meta, options);
+        return room;
     }
     static createRoomByIssueBody(options, body) {
         if (body) {
@@ -33799,11 +33828,6 @@ class TicTacToeRoom extends Room {
             }
         }
         throw new Error('Game meta data not found.');
-    }
-    static getRandomChessColor(excludes = []) {
-        const all_chess_colors = CHESS_COLORS.filter(color => !excludes.includes(color));
-        const random_index = Math.floor(Math.random() * CHESS_COLORS.length);
-        return all_chess_colors[random_index % all_chess_colors.length];
     }
     getWinnerPrintInfo() {
         const winner = this.meta.winner;
@@ -33861,16 +33885,18 @@ class TicTacToeRoom extends Room {
             .map(player => player.robot
             ? `${player.login} ${ROBOT_EMOJI}${chessColorToEmoji(player.chess_color)}`
             : `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`)
-            .join(' vs ');
+            .join(' `vs` ');
         const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(' ');
         const languages_line = LANGUAGES.map(c => `\`${c}\``).join(' ');
+        const only_creator = `<span title="${i18n.t('games.ttt.room.body.only_creator_can_use')}">🚧</span>`;
         const body_lines = [
             `<!-- ${JSON.stringify(this.meta)} -->`,
             `## ${i18n.t('games.ttt.room.body.welcome')}`,
             `**${i18n.t('games.ttt.room.body.play_game_by_command')}**`,
             `- ${i18n.t('games.ttt.room.body.chess_command_description')}`,
             `- ${i18n.t('games.ttt.room.body.color_command_description', { colors: colors_line })}`,
-            `- ${i18n.t('games.ttt.room.body.language_command_description', { languages: languages_line })}`,
+            `- ${only_creator}${i18n.t('games.ttt.room.body.language_command_description', { languages: languages_line })}`,
+            `- ${only_creator}${i18n.t('games.ttt.room.body.robot_command_description')}`,
             `\n${i18n.t('games.ttt.room.body.status', { status: this.meta.status })}`,
             i18n.t('games.ttt.room.body.players', { players: player_line }),
         ];
@@ -33933,7 +33959,7 @@ class TicTacToeRoom extends Room {
     static createRobotPlayer(excludes) {
         return {
             login: ROBOT_LOGIN,
-            chess_color: TicTacToeRoom.getRandomChessColor(excludes),
+            chess_color: getRandomChessColor(excludes),
             robot: true,
         };
     }
@@ -33965,22 +33991,55 @@ class TicTacToeRoom extends Room {
             comment
         });
     }
-    coordinatesToCoordinatesWithOrigin(coordinates) {
-        return {
-            x: coordinates.x,
-            y: coordinates.y,
-            ox: coordinates.x + '',
-            oy: ROW_LETTERS[coordinates.y]
-        };
+    async updateStatus(issue_number) {
+        const player_count = this.meta.players.length;
+        if (player_count === 0) {
+            this.meta.status = 'init';
+        }
+        else if (player_count === 1) {
+            this.meta.status = 'waiting';
+        }
+        else if (player_count === 2) {
+            this.meta.status = 'playing';
+        }
+        if (this.meta.winner) {
+            this.meta.status = 'end';
+            const call_all_players = this.meta.players
+                .filter(player => !player.robot)
+                .map(player => '@' + player.login).join(' ');
+            await issue.createComment({
+                issue_number,
+                body: i18n.t('games.ttt.reply.call_player_game_ended', {
+                    players: call_all_players,
+                    result: this.getWinnerPrintInfo()
+                })
+            });
+        }
     }
-    robotMove = async (is_max, player_color, robot_color, depth = 0, max_depth = 3) => {
+    hasGameEnded() {
+        return this.meta.status === 'end';
+    }
+    getRobotPlayer() {
+        return this.meta.players.find(player => player.robot) || null;
+    }
+    async updateRoom(issue_number) {
+        this.meta.update_time = new Date().toISOString();
+        await issue.updateIssue({
+            issue_number,
+            title: this.getIssueTitle(),
+            body: this.getIssueBody(),
+            state: this.hasGameEnded() ? 'closed' : 'open'
+        });
+    }
+    robotMove = async (is_max, player_color, robot_color, depth = 0, max_depth = 5) => {
+        // minimax and random move
         await this.updateWinner();
         const winner = this.meta.winner;
         if (winner === 'tie' || depth >= max_depth) {
             return { score: 0 };
         }
         else if (winner) {
-            return { score: (winner.robot ? 10000 : -10000) / depth };
+            return { score: Math.floor((winner.robot ? 10000 : -10000) / depth) };
         }
         const data = this.meta.data;
         let best_score = is_max ? -Infinity : Infinity;
@@ -34016,7 +34075,7 @@ class TicTacToeRoom extends Room {
             const new_player = {
                 login: comment.user.login,
                 url: comment.user.html_url,
-                chess_color: TicTacToeRoom.getRandomChessColor(this.meta.players.map(p => p.chess_color))
+                chess_color: getRandomChessColor(this.meta.players.map(p => p.chess_color))
             };
             this.meta.players.push(new_player);
             player = new_player;
@@ -34043,8 +34102,8 @@ class TicTacToeRoom extends Room {
             await this.updateWinner();
             const winner = this.meta.winner;
             if (winner === null) {
-                const move = await this.robotMove(true, player.chess_color, robot_player.chess_color, 0, 5);
-                const cwo = this.coordinatesToCoordinatesWithOrigin(move.coordinates);
+                const move = await this.robotMove(true, player.chess_color, robot_player.chess_color);
+                const cwo = coordinatesToCoordinatesWithOrigin(move.coordinates);
                 this.updateDataAndStep(cwo, robot_player, undefined);
             }
         }
@@ -34104,44 +34163,6 @@ class TicTacToeRoom extends Room {
             this.meta.players = this.meta.players.filter(player => !player.robot);
         }
     }
-    async updateStatus(issue_number) {
-        const player_count = this.meta.players.length;
-        if (player_count === 0) {
-            this.meta.status = 'init';
-        }
-        else if (player_count === 1) {
-            this.meta.status = 'waiting';
-        }
-        else if (player_count === 2) {
-            this.meta.status = 'playing';
-        }
-        if (this.meta.winner) {
-            this.meta.status = 'end';
-            const call_all_players = this.meta.players.map(player => '@' + player.login).join(' ');
-            await issue.createComment({
-                issue_number,
-                body: i18n.t('games.ttt.reply.call_player_game_ended', {
-                    players: call_all_players,
-                    result: this.getWinnerPrintInfo()
-                })
-            });
-        }
-    }
-    hasGameEnded() {
-        return this.meta.status === 'end';
-    }
-    getRobotPlayer() {
-        return this.meta.players.find(player => player.robot) || null;
-    }
-    async updateRoom(issue_number) {
-        this.meta.update_time = new Date().toISOString();
-        await issue.updateIssue({
-            issue_number,
-            title: this.getIssueTitle(),
-            body: this.getIssueBody(),
-            state: this.hasGameEnded() ? 'closed' : 'open'
-        });
-    }
 }
 class TicTacToeGame extends Game {
     async handleIssueOpenedEvent(payload) {
@@ -34153,7 +34174,7 @@ class TicTacToeGame extends Game {
         const create_player = {
             login: user.login,
             url: user.html_url,
-            chess_color: TicTacToeRoom.getRandomChessColor(),
+            chess_color: getRandomChessColor(),
         };
         const [command, errors] = TicTacToeRoom.parseCommands(issue_body);
         if (errors.length > 0) {
@@ -34162,7 +34183,7 @@ class TicTacToeGame extends Game {
                 body: 'Warning:\n' + errors.map(e => '+ ' + e.message).join('\n')
             });
         }
-        const room = TicTacToeRoom.createEmptyRoom(this.options, create_player, command);
+        const room = await TicTacToeRoom.createEmptyRoom(this.options, create_player, command);
         const game_issue = await issue.createIssue({
             title: room.getIssueTitle(),
             body: room.getIssueBody(),
@@ -34201,6 +34222,7 @@ class TicTacToeGame extends Game {
         await room.parseLanguageCommand(issue_number, command, comment).catch(catchError);
         await room.parseCoordinatesCommand(issue_number, command, comment).catch(catchError);
         await room.parseColorCommand(issue_number, command, comment).catch(catchError);
+        await room.parseRobotCommand(issue_number, command, comment).catch(catchError);
         await room.updateWinner();
         await room.updateStatus(issue_number);
         await room.updateRoom(issue_number);

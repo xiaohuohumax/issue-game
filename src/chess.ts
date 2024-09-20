@@ -18,8 +18,23 @@ export const CHESS_COLORS: ChessColor[] = [
   'red'
 ];
 
+export const CHESS_EMOJIS: { [key in ChessColor]: string } = {
+  'black': '⚫',
+  'white': '⚪',
+  'brown': '🟤',
+  'purple': '🟣',
+  'green': '🟢',
+  'yellow': '🟡',
+  'orange': '🟠',
+  'red': '🔴'
+};
+
 export function chessColorToEmoji(color: ChessColor | null): string {
-  return color ? `:${color}_circle:` : '';
+  if (color) {
+    const emoji = CHESS_EMOJIS[color];
+    return emoji ? emoji : '';
+  }
+  return '';
 }
 
 export type ArrayLength<T, S extends number> = Array<T> & { length: S };
