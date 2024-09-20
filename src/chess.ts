@@ -18,7 +18,7 @@ export const CHESS_COLORS: ChessColor[] = [
   'red'
 ];
 
-export function chessColorToEmoji(color?: ChessColor): string {
+export function chessColorToEmoji(color: ChessColor | null): string {
   return color ? `:${color}_circle:` : '';
 }
 

@@ -13,22 +13,26 @@
         },
         "language": {
           "invalid": "`{{origin}}` error: `{{value}}` is not in the list of selectable languages."
+        },
+        "robot": {
+          "invalid": "`{{origin}}` error: `{{value}}` is not a valid robot operation."
         }
       },
       "room": {
         "winner": {
           "tie": "Tie!",
-          "win": "{{login}} wins!"
+          "win": "{{winner}} wins!"
         },
         "body": {
           "welcome": "Welcome to play TicTacToe game!",
           "play_game_by_command": "Reply to the current issue with the following command to participate in the game:",
           "chess_command_description": "`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.",
           "color_command_description": "`color:color_name` Set the piece color, Selectable colors: {{colors}}.",
-          "language_command_description": "`language:language_name` Set the language, note: only the room creator can change the language. Selectable languages: {{languages}}.",
+          "language_command_description": "`language:language_name` Set the language, note: only the room creator can change. Selectable languages: {{languages}}.",
+          "robot_command_description": "`robot:mode` Set the robot mode, note: only the room creator can change. `robot:add` Join the robot, `robot:remove` Remove the robot.",
           "status": "`Status`: {{status}}",
           "players": "`Players`: {{players}}",
-          "next_player": "`Next`: [{{login}}]({{url}}) {{chess_emoji}}",
+          "next_player": "`Next`: {{next_player}}",
           "steps": "`Steps`:",
           "result": "`Result`: {{result}}"
         }
@@ -40,9 +44,12 @@
         "color_change_failed": "You are not in the room, unable to change piece color.",
         "color_used": "`{{color}}` has already been used, please choose again.",
         "game_ended": "The game has ended!",
-        "game_room_created": "Game room created: Click link [{{name}}]({{url}}) to join.",
+        "game_room_created": "@{{login}} Game room created: Click link [{{name}}]({{url}}) to join.",
         "call_player_game_ended": "{{players}} The game has ended! {{result}}",
-        "language_change_failed": "Only the room owner can change the language."
+        "language_change_failed": "Only the room owner can change the language.",
+        "room_has_robot_add_failed": "The room already has a robot, no need to add.",
+        "room_full_add_robot_failed": "The room is full, unable to add a robot.",
+        "game_start_remove_robot_failed": "The game has started, unable to remove the robot."
       }
     }
   },

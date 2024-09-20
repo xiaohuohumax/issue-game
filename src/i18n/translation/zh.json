@@ -13,22 +13,26 @@
         },
         "language": {
           "invalid": "`{{origin}}`异常：`{{value}}`不在可选的语言列表中。"
+        },
+        "robot": {
+          "invalid": "`{{origin}}`异常：`{{value}}`不是有效的机器人操作。"
         }
       },
       "room": {
         "winner": {
           "tie": "平局!",
-          "win": "{{login}} 获胜！"
+          "win": "{{winner}} 获胜！"
         },
         "body": {
           "welcome": "欢迎游玩井字棋游戏！",
           "play_game_by_command": "使用以下命令回复当前 Issue 即可参与游戏：",
           "chess_command_description": "`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。",
           "color_command_description": "`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。",
-          "language_command_description": "`language:language_name` 设置语言，注意：只有房间创建者可更改语言。可选语言：{{languages}}。",
+          "language_command_description": "`language:language_name` 设置语言，注意：只有房间创建者可更改。可选语言：{{languages}}。",
+          "robot_command_description": "`robot:mode` 设置机器人，注意：只有房间创建者可更改。`robot:add` 添加机器人，`robot:remove` 删除机器人。",
           "status": "`状态`：{{status}}",
           "players": "`玩家`：{{players}}",
-          "next_player": "`下一步`：[{{login}}]({{url}}) {{chess_emoji}}",
+          "next_player": "`下一步`：{{next_player}}",
           "steps": "`步骤`：",
           "result": "`结果`：{{result}}"
         }
@@ -40,9 +44,12 @@
         "color_change_failed": "你不在房间中，无法更改棋子颜色。",
         "color_used": "`{{color}}` 已经被使用，请重新选择。",
         "game_ended": "游戏已经结束！",
-        "game_room_created": "游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。",
+        "game_room_created": "@{{login}} 游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。",
         "call_player_game_ended": "{{players}} 游戏已经结束！{{result}}",
-        "language_change_failed": "只有房间创建者才能更改语言。"
+        "language_change_failed": "只有房间创建者才能更改语言。",
+        "room_has_robot_add_failed": "房间中已经有机器人，无需添加。",
+        "room_full_add_robot_failed": "房间已满，无法添加机器人。",
+        "game_start_remove_robot_failed": "游戏已经开始，无法删除机器人。"
       }
     }
   },

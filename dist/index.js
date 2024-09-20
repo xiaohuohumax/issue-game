@@ -33604,9 +33604,9 @@ const loadLanguages = instance.loadLanguages;
 
 
 ;// CONCATENATED MODULE: ./src/i18n/translation/en.json
-const en_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"TicTacToe","description":"TicTacToe Game","command":{"unknown":"`{{origin}}` error: Unknown command.","chess":{"unmatched":"`{{origin}}` error: `{{value}}` format error or out of range."},"color":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable colors."},"language":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable languages."}},"room":{"winner":{"tie":"Tie!","win":"{{login}} wins!"},"body":{"welcome":"Welcome to play TicTacToe game!","play_game_by_command":"Reply to the current issue with the following command to participate in the game:","chess_command_description":"`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.","color_command_description":"`color:color_name` Set the piece color, Selectable colors: {{colors}}.","language_command_description":"`language:language_name` Set the language, note: only the room creator can change the language. Selectable languages: {{languages}}.","status":"`Status`: {{status}}","players":"`Players`: {{players}}","next_player":"`Next`: [{{login}}]({{url}}) {{chess_emoji}}","steps":"`Steps`:","result":"`Result`: {{result}}"}},"reply":{"room_full":"The room is full, unable to join!","wait_opponent_move":"You have placed a piece at {{ox}}:{{oy}}, please wait for the opponent\'s move.","position_occupied":"`{{login}}` has already placed a piece at {{ox}}:{{oy}}, please choose again.","color_change_failed":"You are not in the room, unable to change piece color.","color_used":"`{{color}}` has already been used, please choose again.","game_ended":"The game has ended!","game_room_created":"Game room created: Click link [{{name}}]({{url}}) to join.","call_player_game_ended":"{{players}} The game has ended! {{result}}","language_change_failed":"Only the room owner can change the language."}}},"reply":{"body":"@{{login}} reply: [{{name}}]({{url}} \'Click to view the original text\')\\n\\n{{body}}\\n\\n{{message}}"}}');
+const en_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"TicTacToe","description":"TicTacToe Game","command":{"unknown":"`{{origin}}` error: Unknown command.","chess":{"unmatched":"`{{origin}}` error: `{{value}}` format error or out of range."},"color":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable colors."},"language":{"invalid":"`{{origin}}` error: `{{value}}` is not in the list of selectable languages."},"robot":{"invalid":"`{{origin}}` error: `{{value}}` is not a valid robot operation."}},"room":{"winner":{"tie":"Tie!","win":"{{winner}} wins!"},"body":{"welcome":"Welcome to play TicTacToe game!","play_game_by_command":"Reply to the current issue with the following command to participate in the game:","chess_command_description":"`chess:x:y` Set the piece position, for example: `chess:1:a` means placing a piece in row 1 column a.","color_command_description":"`color:color_name` Set the piece color, Selectable colors: {{colors}}.","language_command_description":"`language:language_name` Set the language, note: only the room creator can change. Selectable languages: {{languages}}.","robot_command_description":"`robot:mode` Set the robot mode, note: only the room creator can change. `robot:add` Join the robot, `robot:remove` Remove the robot.","status":"`Status`: {{status}}","players":"`Players`: {{players}}","next_player":"`Next`: {{next_player}}","steps":"`Steps`:","result":"`Result`: {{result}}"}},"reply":{"room_full":"The room is full, unable to join!","wait_opponent_move":"You have placed a piece at {{ox}}:{{oy}}, please wait for the opponent\'s move.","position_occupied":"`{{login}}` has already placed a piece at {{ox}}:{{oy}}, please choose again.","color_change_failed":"You are not in the room, unable to change piece color.","color_used":"`{{color}}` has already been used, please choose again.","game_ended":"The game has ended!","game_room_created":"@{{login}} Game room created: Click link [{{name}}]({{url}}) to join.","call_player_game_ended":"{{players}} The game has ended! {{result}}","language_change_failed":"Only the room owner can change the language.","room_has_robot_add_failed":"The room already has a robot, no need to add.","room_full_add_robot_failed":"The room is full, unable to add a robot.","game_start_remove_robot_failed":"The game has started, unable to remove the robot."}}},"reply":{"body":"@{{login}} reply: [{{name}}]({{url}} \'Click to view the original text\')\\n\\n{{body}}\\n\\n{{message}}"}}');
 ;// CONCATENATED MODULE: ./src/i18n/translation/zh.json
-const zh_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"井字棋","description":"井字棋游戏","command":{"unknown":"`{{origin}}`异常：未知的指令。","chess":{"unmatched":"`{{origin}}`异常：`{{value}}`格式错误或者棋子超出棋盘范围。"},"color":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的颜色列表中。"},"language":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的语言列表中。"}},"room":{"winner":{"tie":"平局!","win":"{{login}} 获胜！"},"body":{"welcome":"欢迎游玩井字棋游戏！","play_game_by_command":"使用以下命令回复当前 Issue 即可参与游戏：","chess_command_description":"`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。","color_command_description":"`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。","language_command_description":"`language:language_name` 设置语言，注意：只有房间创建者可更改语言。可选语言：{{languages}}。","status":"`状态`：{{status}}","players":"`玩家`：{{players}}","next_player":"`下一步`：[{{login}}]({{url}}) {{chess_emoji}}","steps":"`步骤`：","result":"`结果`：{{result}}"}},"reply":{"room_full":"房间已满，无法加入！","wait_opponent_move":"你已经在 {{ox}}:{{oy}} 处落子，请等待对手落子。","position_occupied":"`{{login}} 已经在 {{ox}}:{{oy}} 处落子，请重新选择。","color_change_failed":"你不在房间中，无法更改棋子颜色。","color_used":"`{{color}}` 已经被使用，请重新选择。","game_ended":"游戏已经结束！","game_room_created":"游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。","call_player_game_ended":"{{players}} 游戏已经结束！{{result}}","language_change_failed":"只有房间创建者才能更改语言。"}}},"reply":{"body":"@{{login}} 回复：[{{name}}]({{url}} \'点击查看原文\')\\n\\n{{body}}\\n\\n{{message}}"}}');
+const zh_namespaceObject = JSON.parse('{"games":{"ttt":{"name":"井字棋","description":"井字棋游戏","command":{"unknown":"`{{origin}}`异常：未知的指令。","chess":{"unmatched":"`{{origin}}`异常：`{{value}}`格式错误或者棋子超出棋盘范围。"},"color":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的颜色列表中。"},"language":{"invalid":"`{{origin}}`异常：`{{value}}`不在可选的语言列表中。"},"robot":{"invalid":"`{{origin}}`异常：`{{value}}`不是有效的机器人操作。"}},"room":{"winner":{"tie":"平局!","win":"{{winner}} 获胜！"},"body":{"welcome":"欢迎游玩井字棋游戏！","play_game_by_command":"使用以下命令回复当前 Issue 即可参与游戏：","chess_command_description":"`chess:x:y` 设置棋子位置，例如：`chess:1:a` 表示在第 1 行第 a 列放置棋子。","color_command_description":"`color:color_name` 设置棋子的颜色，可选颜色：{{colors}}。","language_command_description":"`language:language_name` 设置语言，注意：只有房间创建者可更改。可选语言：{{languages}}。","robot_command_description":"`robot:mode` 设置机器人，注意：只有房间创建者可更改。`robot:add` 添加机器人，`robot:remove` 删除机器人。","status":"`状态`：{{status}}","players":"`玩家`：{{players}}","next_player":"`下一步`：{{next_player}}","steps":"`步骤`：","result":"`结果`：{{result}}"}},"reply":{"room_full":"房间已满，无法加入！","wait_opponent_move":"你已经在 {{ox}}:{{oy}} 处落子，请等待对手落子。","position_occupied":"`{{login}} 已经在 {{ox}}:{{oy}} 处落子，请重新选择。","color_change_failed":"你不在房间中，无法更改棋子颜色。","color_used":"`{{color}}` 已经被使用，请重新选择。","game_ended":"游戏已经结束！","game_room_created":"@{{login}} 游戏房间已创建：点击链接 [{{name}}]({{url}}) 即可加入。","call_player_game_ended":"{{players}} 游戏已经结束！{{result}}","language_change_failed":"只有房间创建者才能更改语言。","room_has_robot_add_failed":"房间中已经有机器人，无需添加。","room_full_add_robot_failed":"房间已满，无法添加机器人。","game_start_remove_robot_failed":"游戏已经开始，无法删除机器人。"}}},"reply":{"body":"@{{login}} 回复：[{{name}}]({{url}} \'点击查看原文\')\\n\\n{{body}}\\n\\n{{message}}"}}');
 ;// CONCATENATED MODULE: ./src/i18n/index.ts
 
 
@@ -33671,6 +33671,10 @@ async function catchError(error) {
 
 
 
+const COMMAND_ROBOTS = ['add', 'remove'];
+const ROBOT_EMOJI = '🤖';
+const ROBOT_LOGIN = 'robot';
+const ROW_LETTERS = ['a', 'b', 'c', 'd', 'e'];
 function getMessageParamsByComment(comment, message_params) {
     return {
         ...message_params,
@@ -33719,14 +33723,13 @@ class TicTacToeRoom extends Room {
                     value,
                 }));
             }
-            const row_letters = ['a', 'b', 'c'];
             let [x, y] = match[0].toLocaleLowerCase().split(':');
             let int_x = parseInt(x, 10), int_y = parseInt(y, 10);
             if (isNaN(int_x) && !isNaN(int_y)) {
                 [int_x, int_y] = [int_y, int_x];
                 [x, y] = [y, x];
             }
-            return { x: int_x - 1, y: row_letters.indexOf(y), ox: x, oy: y };
+            return { x: int_x - 1, y: ROW_LETTERS.indexOf(y), ox: x, oy: y };
         },
         color: (value, origin) => {
             if (!CHESS_COLORS.includes(value)) {
@@ -33740,6 +33743,15 @@ class TicTacToeRoom extends Room {
         language: (value, origin) => {
             if (!LANGUAGES.includes(value)) {
                 throw new Error(i18n.t('games.ttt.command.language.invalid', {
+                    origin,
+                    value
+                }));
+            }
+            return value;
+        },
+        robot: (value, origin) => {
+            if (!COMMAND_ROBOTS.includes(value)) {
+                throw new Error(i18n.t('games.ttt.command.robot.invalid', {
                     origin,
                     value
                 }));
@@ -33767,11 +33779,15 @@ class TicTacToeRoom extends Room {
             update_time: new Date().toISOString()
         };
         if (command.chess) {
-            meta.data[command.chess.x][command.chess.y] = create_player.login;
+            meta.data[command.chess.x][command.chess.y] = create_player.chess_color;
             meta.steps.push({
                 login: create_player.login,
                 coordinates: command.chess,
             });
+        }
+        if (command.robot === 'add') {
+            const robot_player = TicTacToeRoom.createRobotPlayer([create_player.chess_color]);
+            meta.players.push(robot_player);
         }
         return new TicTacToeRoom(meta, options);
     }
@@ -33790,10 +33806,15 @@ class TicTacToeRoom extends Room {
         return all_chess_colors[random_index % all_chess_colors.length];
     }
     getWinnerPrintInfo() {
-        return this.meta.winner
-            ? this.meta.winner === 'tie'
+        const winner = this.meta.winner;
+        return winner
+            ? winner === 'tie'
                 ? i18n.t('games.ttt.room.winner.tie')
-                : i18n.t('games.ttt.room.winner.win', { login: this.meta.winner.login })
+                : i18n.t('games.ttt.room.winner.win', {
+                    winner: winner.robot
+                        ? ROBOT_EMOJI + winner.login
+                        : winner.login
+                })
             : '';
     }
     getNextPlayer() {
@@ -33816,18 +33837,7 @@ class TicTacToeRoom extends Room {
         return chess_color_map;
     }
     getChessColorTable() {
-        const chess_color_map = this.getLoginChessColorMap();
-        return this.meta.data.map(row => {
-            return row.map(col => {
-                if (col) {
-                    const chess_color = chess_color_map.get(col);
-                    if (chess_color) {
-                        return chessColorToEmoji(chess_color);
-                    }
-                }
-                return '';
-            });
-        });
+        return this.meta.data.map(row => row.map(col => chessColorToEmoji(col)));
     }
     getIssueTitle() {
         const titles = [
@@ -33836,7 +33846,10 @@ class TicTacToeRoom extends Room {
         ];
         const players = this.meta.players;
         if (players.length == 2) {
-            titles.push(players.map(player => player.login).join(' vs '));
+            const player_lines = players
+                .map(player => player.robot ? player.login + ROBOT_EMOJI : player.login)
+                .join(' vs ');
+            titles.push(player_lines);
             if (this.meta.winner) {
                 titles.push(this.getWinnerPrintInfo());
             }
@@ -33845,7 +33858,9 @@ class TicTacToeRoom extends Room {
     }
     getIssueBody() {
         const player_line = this.meta.players
-            .map(player => `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`)
+            .map(player => player.robot
+            ? `${player.login} ${ROBOT_EMOJI}${chessColorToEmoji(player.chess_color)}`
+            : `[${player.login}](${player.url}) ${chessColorToEmoji(player.chess_color)}`)
             .join(' vs ');
         const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(' ');
         const languages_line = LANGUAGES.map(c => `\`${c}\``).join(' ');
@@ -33863,23 +33878,24 @@ class TicTacToeRoom extends Room {
         if (next_player) {
             const chess_emoji = chessColorToEmoji(next_player.chess_color);
             body_lines.push(i18n.t('games.ttt.room.body.next_player', {
-                login: next_player.login,
-                url: next_player.url,
-                chess_emoji
+                next_player: next_player.robot
+                    ? `${next_player.login} ${ROBOT_EMOJI}${chess_emoji}`
+                    : `[${next_player.login}](${next_player.url}) ${chess_emoji}`
             }));
         }
         const table = this.getChessColorTable();
         body_lines.push('\n|+|a|b|c|', '|:--:|:--:|:--:|:--:|', `|1|${table[0][0]}|${table[0][1]}|${table[0][2]}|`, `|2|${table[1][0]}|${table[1][1]}|${table[1][2]}|`, `|3|${table[2][0]}|${table[2][1]}|${table[2][2]}|`);
         if (this.meta.steps.length > 0) {
-            const chess_color_map = this.getLoginChessColorMap();
             body_lines.push('', i18n.t('games.ttt.room.body.steps'), ...this.meta.steps.map(step => {
                 const { login, coordinates, comment } = step;
-                const chess_emoji = chessColorToEmoji(chess_color_map.get(step.login));
+                const player = this.getPlayerByLogin(login);
+                const chess_emoji = chessColorToEmoji(player.chess_color);
+                const robot_emoji = player.robot ? ROBOT_EMOJI : '';
                 if (comment) {
-                    return `+ ${chess_emoji} [${coordinates.ox}:${coordinates.oy} ${login}](${comment.url})`;
+                    return `+ ${chess_emoji} [${coordinates.ox}:${coordinates.oy} ${robot_emoji}${login}](${comment.url})`;
                 }
                 else {
-                    return `+ ${chess_emoji} ${coordinates.ox}:${coordinates.oy} ${login}`;
+                    return `+ ${chess_emoji} ${coordinates.ox}:${coordinates.oy} ${robot_emoji}${login}`;
                 }
             }));
         }
@@ -33914,22 +33930,80 @@ class TicTacToeRoom extends Room {
         }
         return [commands, errors];
     }
+    static createRobotPlayer(excludes) {
+        return {
+            login: ROBOT_LOGIN,
+            chess_color: TicTacToeRoom.getRandomChessColor(excludes),
+            robot: true,
+        };
+    }
     getPlayerByLogin(login) {
         return this.meta.players
             .find(player => player.login === login) || null;
+    }
+    getPlayerByChessColor(chess_color) {
+        return this.meta.players
+            .find(player => player.chess_color === chess_color) || null;
     }
     async updateWinner() {
         const { data } = this.meta;
         for (const [c1, c2, c3] of TicTacToeRoom.WIN_MAP) {
             const [l1, l2, l3] = [data[c1.x][c1.y], data[c2.x][c2.y], data[c3.x][c3.y]];
             if (l1 && l1 === l2 && l2 === l3) {
-                this.meta.winner = this.getPlayerByLogin(l1);
+                this.meta.winner = this.getPlayerByChessColor(l1);
                 return;
             }
         }
         const empty_cells = this.meta.data.flat().filter(cell => !cell);
         this.meta.winner = empty_cells.length === 0 ? 'tie' : null;
     }
+    updateDataAndStep(coordinates, player, comment) {
+        this.meta.data[coordinates.x][coordinates.y] = player.chess_color;
+        this.meta.steps.push({
+            login: player.login,
+            coordinates,
+            comment
+        });
+    }
+    coordinatesToCoordinatesWithOrigin(coordinates) {
+        return {
+            x: coordinates.x,
+            y: coordinates.y,
+            ox: coordinates.x + '',
+            oy: ROW_LETTERS[coordinates.y]
+        };
+    }
+    robotMove = async (is_max, player_color, robot_color, depth = 0, max_depth = 3) => {
+        await this.updateWinner();
+        const winner = this.meta.winner;
+        if (winner === 'tie' || depth >= max_depth) {
+            return { score: 0 };
+        }
+        else if (winner) {
+            return { score: (winner.robot ? 10000 : -10000) / depth };
+        }
+        const data = this.meta.data;
+        let best_score = is_max ? -Infinity : Infinity;
+        let moves = [];
+        for (let x = 0; x < data.length; x++) {
+            for (let y = 0; y < data[x].length; y++) {
+                if (data[x][y] !== null) {
+                    continue;
+                }
+                data[x][y] = is_max ? robot_color : player_color;
+                const move = await this.robotMove(!is_max, player_color, robot_color, depth + 1, max_depth);
+                data[x][y] = null;
+                if (is_max ? (move.score > best_score) : (move.score < best_score)) {
+                    best_score = move.score;
+                    moves = [];
+                }
+                if (move.score === best_score) {
+                    moves.push({ score: move.score, coordinates: { x, y } });
+                }
+            }
+        }
+        return moves[Math.floor(Math.random() * moves.length)];
+    };
     async parseCoordinatesCommand(issue_number, { chess: coordinates }, comment) {
         if (!coordinates) {
             return;
@@ -33954,20 +34028,26 @@ class TicTacToeRoom extends Room {
                 oy: last_step.coordinates.oy
             }));
         }
-        const before_login = this.meta.data[coordinates.x][coordinates.y];
-        if (before_login) {
+        const before_chess_color = this.meta.data[coordinates.x][coordinates.y];
+        if (before_chess_color) {
+            const before_player = this.getPlayerByChessColor(before_chess_color);
             throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.position_occupied', {
-                login: before_login,
+                login: before_player.login,
                 ox: coordinates.ox,
                 oy: coordinates.oy
             }));
         }
-        this.meta.data[coordinates.x][coordinates.y] = player.login;
-        this.meta.steps.push({
-            login: player.login,
-            coordinates,
-            comment: { url: comment.html_url }
-        });
+        this.updateDataAndStep(coordinates, player, { url: comment.html_url });
+        const robot_player = this.getRobotPlayer();
+        if (robot_player) {
+            await this.updateWinner();
+            const winner = this.meta.winner;
+            if (winner === null) {
+                const move = await this.robotMove(true, player.chess_color, robot_player.chess_color, 0, 5);
+                const cwo = this.coordinatesToCoordinatesWithOrigin(move.coordinates);
+                this.updateDataAndStep(cwo, robot_player, undefined);
+            }
+        }
     }
     async parseColorCommand(issue_number, { color }, comment) {
         if (!color) {
@@ -33977,13 +34057,18 @@ class TicTacToeRoom extends Room {
         if (!player) {
             throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.color_change_failed'));
         }
-        if (CHESS_COLORS.includes(color)) {
-            const player_chess_colors = this.meta.players.map(p => p.chess_color);
-            if (player_chess_colors.includes(color)) {
-                throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.color_used', { color }));
-            }
-            player.chess_color = color;
+        const player_chess_colors = this.meta.players.map(p => p.chess_color);
+        if (player_chess_colors.includes(color)) {
+            throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.color_used', { color }));
         }
+        this.meta.data.forEach(row => {
+            for (let i = 0; i < row.length; i++) {
+                if (row[i] === player.chess_color) {
+                    row[i] = color;
+                }
+            }
+        });
+        player.chess_color = color;
     }
     async parseLanguageCommand(issue_number, { language }, comment) {
         if (language) {
@@ -33993,6 +34078,30 @@ class TicTacToeRoom extends Room {
             }
             this.meta.language = language;
             i18n_changeLanguage(language);
+        }
+    }
+    async parseRobotCommand(issue_number, { robot }, comment) {
+        if (!robot) {
+            return;
+        }
+        const robot_player = this.getRobotPlayer();
+        if (robot === 'add') {
+            if (robot_player) {
+                throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_has_robot_add_failed'));
+            }
+            const player_count = this.meta.players.length;
+            if (player_count >= 2) {
+                throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_full_add_robot_failed'));
+            }
+            const player_chess_colors = this.meta.players.map(p => p.chess_color);
+            const new_robot_player = TicTacToeRoom.createRobotPlayer(player_chess_colors);
+            this.meta.players.push(new_robot_player);
+        }
+        else if (robot === 'remove' && robot_player) {
+            if (this.meta.steps.length > 0) {
+                throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.game_start_remove_robot_failed'));
+            }
+            this.meta.players = this.meta.players.filter(player => !player.robot);
         }
     }
     async updateStatus(issue_number) {
@@ -34021,6 +34130,9 @@ class TicTacToeRoom extends Room {
     hasGameEnded() {
         return this.meta.status === 'end';
     }
+    getRobotPlayer() {
+        return this.meta.players.find(player => player.robot) || null;
+    }
     async updateRoom(issue_number) {
         this.meta.update_time = new Date().toISOString();
         await issue.updateIssue({
@@ -34041,7 +34153,7 @@ class TicTacToeGame extends Game {
         const create_player = {
             login: user.login,
             url: user.html_url,
-            chess_color: TicTacToeRoom.getRandomChessColor()
+            chess_color: TicTacToeRoom.getRandomChessColor(),
         };
         const [command, errors] = TicTacToeRoom.parseCommands(issue_body);
         if (errors.length > 0) {
@@ -34060,7 +34172,8 @@ class TicTacToeGame extends Game {
             issue_number,
             body: i18n.t('games.ttt.reply.game_room_created', {
                 name: game_issue.title,
-                url: game_issue.html_url
+                url: game_issue.html_url,
+                login: user.login,
             })
         });
         await issue.updateIssue({ issue_number, state: 'closed' });
