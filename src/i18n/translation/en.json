@@ -32,6 +32,7 @@
           "language_command_description": "`language:language_name` Set the language. Selectable languages: {{languages}}.",
           "robot_command_description": "`robot:mode` Set the robot mode. `robot:add` Join the robot, `robot:remove` Remove the robot.",
           "status": "`Status`: {{status}}",
+          "creator": "`Creator`: {{creator}}",
           "players": "`Players`: {{players}}",
           "next_player": "`Next`: {{next_player}}",
           "steps": "`Steps`:",

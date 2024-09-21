@@ -32,6 +32,7 @@
           "language_command_description": "`language:language_name` 设置语言。可选语言：{{languages}}。",
           "robot_command_description": "`robot:mode` 设置机器人。`robot:add` 添加机器人，`robot:remove` 删除机器人。",
           "status": "`状态`：{{status}}",
+          "creator": "`创建者`: {{creator}}",
           "players": "`玩家`：{{players}}",
           "next_player": "`下一步`：{{next_player}}",
           "steps": "`步骤`：",
