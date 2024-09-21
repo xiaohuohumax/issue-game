@@ -33712,7 +33712,7 @@ function coordinatesToCoordinatesWithOrigin(coordinates) {
     return {
         x: coordinates.x,
         y: coordinates.y,
-        ox: coordinates.x + '',
+        ox: coordinates.x + 1 + '',
         oy: ROW_LETTERS[coordinates.y]
     };
 }
@@ -33909,7 +33909,7 @@ class TicTacToeRoom extends Room {
             `- ${only_creator}${i18n.t('games.ttt.room.body.language_command_description', { languages: languages_line })}`,
             `- ${only_creator}${i18n.t('games.ttt.room.body.robot_command_description')}`,
             `\n${i18n.t('games.ttt.room.body.status', { status: status })}`,
-            `\n${i18n.t('games.ttt.room.body.creator', { creator: creator_line })}`,
+            `${i18n.t('games.ttt.room.body.creator', { creator: creator_line })}`,
             i18n.t('games.ttt.room.body.players', { players: player_line }),
         ];
         const next_player = this.getNextPlayer();
