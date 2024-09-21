@@ -33687,7 +33687,7 @@ async function catchError(error) {
 
 const COMMAND_ROBOTS = ['add', 'remove'];
 const ROBOT_EMOJI = '🤖';
-const ROBOT_LOGIN = 'robot';
+const ROBOT_LOGIN = 'xiaohuohumax';
 const ROW_LETTERS = ['a', 'b', 'c', 'd', 'e'];
 function getMessageParamsByComment(comment, message_params) {
     return {
@@ -33959,9 +33959,9 @@ class TicTacToeRoom extends Room {
     getChessColorTable() {
         return this.meta.data.map(row => row.map(col => chessColorToEmoji(col)));
     }
-    getPlayerByLogin(login) {
+    getUserPlayerByLogin(login) {
         return this.meta.players
-            .find(player => player.login === login) || null;
+            .find(player => player.login === login && !player.robot) || null;
     }
     getPlayerByChessColor(chess_color) {
         return this.meta.players
@@ -34038,7 +34038,7 @@ class TicTacToeRoom extends Room {
         if (!coordinates) {
             return;
         }
-        let player = this.getPlayerByLogin(comment.user.login);
+        let player = this.getUserPlayerByLogin(comment.user.login);
         if (!player) {
             const new_player = {
                 login: comment.user.login,
@@ -34071,12 +34071,12 @@ class TicTacToeRoom extends Room {
         if (!color) {
             return;
         }
-        const player = this.getPlayerByLogin(comment.user.login);
+        const player = this.getUserPlayerByLogin(comment.user.login);
         if (!player) {
             throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.color_change_failed'));
         }
         const player_chess_colors = this.meta.players.map(p => p.chess_color);
-        if (player_chess_colors.includes(color)) {
+        if (player_chess_colors.includes(color) && player.chess_color !== color) {
             throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.color_used', { color }));
         }
         this.meta.data.forEach(row => {
@@ -34227,7 +34227,7 @@ class TicTacToeGame extends Game {
         if (room.isGameEnded()) {
             throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.game_ended'));
         }
-        if (room.isRoomFull() && !room.getPlayerByLogin(comment.user.login)) {
+        if (room.isRoomFull() && !room.getUserPlayerByLogin(comment.user.login)) {
             throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_full'));
         }
         const [command, errors] = TicTacToeRoom.parseCommands(comment.body);

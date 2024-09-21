@@ -63,7 +63,7 @@ type CommandRobot = 'add' | 'remove';
 
 const COMMAND_ROBOTS: CommandRobot[] = ['add', 'remove'];
 const ROBOT_EMOJI: string = '🤖';
-const ROBOT_LOGIN: string = 'robot';
+const ROBOT_LOGIN: string = 'xiaohuohumax';
 const ROW_LETTERS: string[] = ['a', 'b', 'c', 'd', 'e'];
 
 function getMessageParamsByComment(comment: IssueCommentCreatedEvent['comment'], message_params: ReplyMessageParams): ReplyMessageParams {
@@ -390,9 +390,9 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     return this.meta.data.map(row => row.map(col => chessColorToEmoji(col))) as ArrayTable<ChessColor | '', 3, 3>;
   }
 
-  public getPlayerByLogin(login: string): MetaPlayer | null {
+  public getUserPlayerByLogin(login: string): MetaPlayer | null {
     return this.meta.players
-      .find(player => player.login === login) || null;
+      .find(player => player.login === login && !player.robot) || null;
   }
 
   public getPlayerByChessColor(chess_color: ChessColor): MetaPlayer | null {
@@ -478,7 +478,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       return;
     }
 
-    let player = this.getPlayerByLogin(comment.user.login);
+    let player = this.getUserPlayerByLogin(comment.user.login);
     if (!player) {
       const new_player: MetaPlayer = {
         login: comment.user.login,
@@ -523,7 +523,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       return;
     }
 
-    const player = this.getPlayerByLogin(comment.user.login);
+    const player = this.getUserPlayerByLogin(comment.user.login);
     if (!player) {
       throwReplyMessageError(
         issue_number, comment,
@@ -532,7 +532,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     }
 
     const player_chess_colors = this.meta.players.map(p => p.chess_color);
-    if (player_chess_colors.includes(color)) {
+    if (player_chess_colors.includes(color) && player.chess_color !== color) {
       throwReplyMessageError(
         issue_number, comment,
         i18n.t('games.ttt.reply.color_used', { color })
@@ -719,7 +719,7 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
     if (room.isGameEnded()) {
       throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.game_ended'));
     }
-    if (room.isRoomFull() && !room.getPlayerByLogin(comment.user.login)) {
+    if (room.isRoomFull() && !room.getUserPlayerByLogin(comment.user.login)) {
       throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_full'));
     }
 
