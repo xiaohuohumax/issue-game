@@ -33687,7 +33687,7 @@ async function catchError(error) {
 
 const COMMAND_ROBOTS = ['add', 'remove'];
 const ROBOT_EMOJI = '🤖';
-const ROBOT_LOGIN = 'xiaohuohumax';
+const ROBOT_LOGIN = 'robot';
 const ROW_LETTERS = ['a', 'b', 'c', 'd', 'e'];
 function getMessageParamsByComment(comment, message_params) {
     return {
@@ -33913,7 +33913,7 @@ class TicTacToeRoom extends Room {
             i18n.t('games.ttt.room.body.players', { players: player_line }),
         ];
         const next_player = this.getNextPlayer();
-        if (next_player) {
+        if (next_player && !this.isGameEnded()) {
             const chess_emoji = chessColorToEmoji(next_player.chess_color);
             body_lines.push(i18n.t('games.ttt.room.body.next_player', {
                 next_player: next_player.robot

@@ -63,7 +63,7 @@ type CommandRobot = 'add' | 'remove';
 
 const COMMAND_ROBOTS: CommandRobot[] = ['add', 'remove'];
 const ROBOT_EMOJI: string = '🤖';
-const ROBOT_LOGIN: string = 'xiaohuohumax';
+const ROBOT_LOGIN: string = 'robot';
 const ROW_LETTERS: string[] = ['a', 'b', 'c', 'd', 'e'];
 
 function getMessageParamsByComment(comment: IssueCommentCreatedEvent['comment'], message_params: ReplyMessageParams): ReplyMessageParams {
@@ -323,7 +323,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
     ];
 
     const next_player = this.getNextPlayer();
-    if (next_player) {
+    if (next_player && !this.isGameEnded()) {
       const chess_emoji = chessColorToEmoji(next_player.chess_color);
       body_lines.push(
         i18n.t('games.ttt.room.body.next_player', {
