@@ -33874,9 +33874,8 @@ class TicTacToeRoom extends Room {
             i18n.t('games.ttt.name'),
             this.meta.status
         ];
-        const players = this.meta.players;
-        if (players.length == 2) {
-            const player_lines = players
+        if (this.isRoomFull()) {
+            const player_lines = this.meta.players
                 .map(player => player.robot ? player.login + ROBOT_EMOJI : player.login)
                 .join(' vs ');
             titles.push(player_lines);
@@ -33940,14 +33939,13 @@ class TicTacToeRoom extends Room {
         return body_lines.join('\n');
     }
     getNextPlayer() {
-        const { players } = this.meta;
-        if (players.length < 2) {
+        if (!this.isRoomFull()) {
             return null;
         }
         const last_step = this.getLastStep();
         if (last_step) {
-            const last_player_index = players.findIndex(player => player.chess_color === last_step.chess_color);
-            return players[(last_player_index + 1) % players.length];
+            const last_index = this.meta.players.findIndex(player => player.chess_color === last_step.chess_color);
+            return this.meta.players[(last_index + 1) % this.meta.players.length];
         }
         return null;
     }
@@ -34007,6 +34005,9 @@ class TicTacToeRoom extends Room {
     isGameEnded() {
         return this.meta.status === 'end';
     }
+    isRoomFull() {
+        return this.meta.players.length >= 2;
+    }
     async robotMove() {
         const robot_player = this.getRobotPlayer();
         const player = this.getUserPlayer();
@@ -34032,9 +34033,6 @@ class TicTacToeRoom extends Room {
         }
         let player = this.getPlayerByLogin(comment.user.login);
         if (!player) {
-            if (this.meta.players.length >= 2) {
-                throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_full'));
-            }
             const new_player = {
                 login: comment.user.login,
                 url: comment.user.html_url,
@@ -34107,8 +34105,7 @@ class TicTacToeRoom extends Room {
             if (robot_player) {
                 throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_has_robot_add_failed'));
             }
-            const player_count = this.meta.players.length;
-            if (player_count >= 2) {
+            if (this.isRoomFull()) {
                 throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_full_add_robot_failed'));
             }
             const player_chess_colors = this.meta.players.map(p => p.chess_color);
@@ -34222,6 +34219,9 @@ class TicTacToeGame extends Game {
         const room = TicTacToeRoom.createRoomByIssueBody(this.options, issue_body);
         if (room.isGameEnded()) {
             throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.game_ended'));
+        }
+        if (room.isRoomFull() && !room.getPlayerByLogin(comment.user.login)) {
+            throwReplyMessageError(issue_number, comment, i18n.t('games.ttt.reply.room_full'));
         }
         const [command, errors] = TicTacToeRoom.parseCommands(comment.body);
         if (errors.length > 0) {
