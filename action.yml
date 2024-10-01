@@ -15,10 +15,20 @@ inputs:
     required: false
     description: "Tic-Tac-Toe game: create room issue title pattern"
     default: "^play\\s+tic[-_]?tac[-_]?toe"
-  ttt-label-prefix:
+  ttt-label:
     required: false
-    description: "Tic-Tac-Toe game: issue label name prefix"
-    default: "game-ttt-room-"
+    description: "Tic-Tac-Toe game: issue label name"
+    default: "game-ttt-room"
+  ttt-room-title:
+    required: false
+    description: "Tic-Tac-Toe game: room title"
+    # {name} game name: Tic-Tac-Toe
+    # {state} game state: init | waiting | playing | end
+    # {vs} player name: player1_name vs player2_name
+    # {creator} room creator name: player_name
+    # {next} next player name: player_name
+    # {winner} winner name: player_name
+    default: "♟|{name}| {state}| {vs}| {winner}"
 
 runs:
   using: "node20"

@@ -41,14 +41,15 @@ jobs:
           #   token: ${{ secrets.GITHUB_TOKEN }}
           #   language: "en"
           #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
-          #   ttt-label-prefix: "game-ttt-room-"
+          #   ttt-label: "game-ttt-room"
 ```
 
 ## ⚙ 使用参数
 
-| 名称                      | 类型   | 说明                                | 默认值                           |
-| ------------------------- | ------ | ----------------------------------- | -------------------------------- |
-| `token`                   | string | 用于身份验证的 GitHub 令牌          | {{ github.token }}               |
-| `language`                | string | 游戏语言：`en`，`zh`                | `en`                             |
-| `ttt-issue-title-pattern` | string | 井字棋游戏：创建房间 Issue 标题正则 | "^play\\s+tic[-\_]?tac[-\_]?toe" |
-| `ttt-label-prefix`        | string | 井字棋游戏：issue 标签名称前缀      | "game-ttt-room-"                 |
+| 名称                      | 类型   | 说明                                                                           | 默认值                                  |
+| ------------------------- | ------ | ------------------------------------------------------------------------------ | --------------------------------------- |
+| `token`                   | string | 用于身份验证的 GitHub 令牌                                                     | {{ github.token }}                      |
+| `language`                | string | 游戏语言：`en`，`zh`                                                           | `en`                                    |
+| `ttt-issue-title-pattern` | string | 井字棋游戏：创建房间 Issue 标题正则                                            | "^play\\s+tic[-\_]?tac[-\_]?toe"        |
+| `ttt-label`               | string | 井字棋游戏：issue 标签名称                                                     | "game-ttt-room"                         |
+| `ttt-room-title`          | string | 井字棋游戏：房间标题 `{name}` `{state}` `{vs}` `{creator}` `{next}` `{winner}` | "♟\|{name}\| {state}\| {vs}\| {winner}" |

@@ -19,14 +19,14 @@ export const CHESS_COLORS: ChessColor[] = [
 ];
 
 export const CHESS_EMOJIS: { [key in ChessColor]: string } = {
-  'black': '⚫',
-  'white': '⚪',
-  'brown': '🟤',
-  'purple': '🟣',
-  'green': '🟢',
-  'yellow': '🟡',
-  'orange': '🟠',
-  'red': '🔴'
+  black: '⚫',
+  white: '⚪',
+  brown: '🟤',
+  purple: '🟣',
+  green: '🟢',
+  yellow: '🟡',
+  orange: '🟠',
+  red: '🔴'
 };
 
 export function chessColorToEmoji(color: ChessColor | null): string {

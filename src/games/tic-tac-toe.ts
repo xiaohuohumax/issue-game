@@ -10,6 +10,7 @@ import issue_api from '../api/issue';
 import { ReplyMessageError, catchError } from '../error';
 import { ReplyMessageParams, replyMessage } from '../reply';
 import i18n, { LANGUAGES, Language, changeLanguage } from '../i18n';
+import input from '../input';
 
 type MetaStatus = 'init' | 'waiting' | 'playing' | 'end';
 
@@ -278,20 +279,45 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
   }
 
   public getIssueTitle(): string {
-    const titles: string[] = [
-      i18n.t('games.ttt.name'),
-      this.meta.status
-    ];
-    if (this.isRoomFull()) {
-      const player_lines = this.meta.players
-        .map(player => player.robot ? player.login + ROBOT_EMOJI : player.login)
-        .join(' vs ');
-      titles.push(player_lines);
-      if (this.meta.winner) {
-        titles.push(this.getWinnerPrintInfo());
+    const room_title_func: { [key: string]: () => string } = {
+      'name': () => i18n.t('games.ttt.name'),
+      'state': () => this.meta.status,
+      'vs': () => this.isRoomFull()
+        ? this.meta.players
+          .map(player => player.robot ? player.login + ROBOT_EMOJI : player.login)
+          .join(' vs ')
+        : '',
+      'next': () => {
+        const next_player = this.getNextPlayer();
+        return next_player
+          ? next_player.robot
+            ? `${next_player.login} ${ROBOT_EMOJI}`
+            : next_player.login
+          : '';
+      },
+      'creator': () => this.meta.creator.login,
+      'winner': () => this.meta.winner
+        ? this.getWinnerPrintInfo()
+        : '',
+    };
+
+    const room_titles = [];
+    top: for (let room_title_item of input.ttt_room_title.split('|')) {
+      const matches = room_title_item.matchAll(/\{\w+\}/ig);
+      for (const match of matches) {
+        const func = room_title_func[match[0].slice(1, -1)];
+        if (!func) {
+          break top;
+        }
+        const replace_content = func();
+        if (!replace_content || replace_content.trim() === '') {
+          break top;
+        }
+        room_title_item = room_title_item.replaceAll(match[0], replace_content);
       }
+      room_titles.push(room_title_item);
     }
-    return `:chess_pawn: ${titles.map(t => `\`${t}\``).join(' ')}`;
+    return room_titles.join('');
   }
 
   public getIssueBody(): string {
@@ -663,14 +689,13 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
 
 export interface TicTacToeGameOptions extends GameOptions {
   label: string;
-  issue_title_pattern: string;
 }
 
 export class TicTacToeGame extends Game<TicTacToeGameOptions> {
 
   public async handleIssueOpenedEvent(payload: IssuesOpenedEvent): Promise<void> {
     const { title, user, number: issue_number, body: issue_body } = payload.issue;
-    const title_match = title.match(new RegExp(this.options.issue_title_pattern, 'ig'));
+    const title_match = title.match(new RegExp(input.ttt_issue_title_pattern, 'ig'));
     if (!title_match) {
       return;
     }

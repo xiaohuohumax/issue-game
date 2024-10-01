@@ -31161,14 +31161,14 @@ const CHESS_COLORS = [
     'red'
 ];
 const CHESS_EMOJIS = {
-    'black': '⚫',
-    'white': '⚪',
-    'brown': '🟤',
-    'purple': '🟣',
-    'green': '🟢',
-    'yellow': '🟡',
-    'orange': '🟠',
-    'red': '🔴'
+    black: '⚫',
+    white: '⚪',
+    brown: '🟤',
+    purple: '🟣',
+    green: '🟢',
+    yellow: '🟡',
+    orange: '🟠',
+    red: '🔴'
 };
 function chessColorToEmoji(color) {
     if (color) {
@@ -31186,7 +31186,8 @@ const input = {
     token: core.getInput('token', { required: true }),
     language: core.getInput('language', { required: true }),
     ttt_issue_title_pattern: core.getInput('ttt-issue-title-pattern', { required: true }),
-    ttt_label_prefix: core.getInput('ttt-label-prefix', { required: true }),
+    ttt_label: core.getInput('ttt-label', { required: true }),
+    ttt_room_title: core.getInput('ttt-room-title', { required: true })
 };
 /* harmony default export */ const src_input = (input);
 
@@ -33685,6 +33686,7 @@ async function catchError(error) {
 
 
 
+
 const COMMAND_ROBOTS = ['add', 'remove'];
 const ROBOT_EMOJI = '🤖';
 const ROBOT_LOGIN = 'robot';
@@ -33874,20 +33876,44 @@ class TicTacToeRoom extends Room {
             : '';
     }
     getIssueTitle() {
-        const titles = [
-            i18n.t('games.ttt.name'),
-            this.meta.status
-        ];
-        if (this.isRoomFull()) {
-            const player_lines = this.meta.players
-                .map(player => player.robot ? player.login + ROBOT_EMOJI : player.login)
-                .join(' vs ');
-            titles.push(player_lines);
-            if (this.meta.winner) {
-                titles.push(this.getWinnerPrintInfo());
+        const room_title_func = {
+            'name': () => i18n.t('games.ttt.name'),
+            'state': () => this.meta.status,
+            'vs': () => this.isRoomFull()
+                ? this.meta.players
+                    .map(player => player.robot ? player.login + ROBOT_EMOJI : player.login)
+                    .join(' vs ')
+                : '',
+            'next': () => {
+                const next_player = this.getNextPlayer();
+                return next_player
+                    ? next_player.robot
+                        ? `${next_player.login} ${ROBOT_EMOJI}`
+                        : next_player.login
+                    : '';
+            },
+            'creator': () => this.meta.creator.login,
+            'winner': () => this.meta.winner
+                ? this.getWinnerPrintInfo()
+                : '',
+        };
+        const room_titles = [];
+        top: for (let room_title_item of src_input.ttt_room_title.split('|')) {
+            const matches = room_title_item.matchAll(/\{\w+\}/ig);
+            for (const match of matches) {
+                const func = room_title_func[match[0].slice(1, -1)];
+                if (!func) {
+                    break top;
+                }
+                const replace_content = func();
+                if (!replace_content || replace_content.trim() === '') {
+                    break top;
+                }
+                room_title_item = room_title_item.replaceAll(match[0], replace_content);
             }
+            room_titles.push(room_title_item);
         }
-        return `:chess_pawn: ${titles.map(t => `\`${t}\``).join(' ')}`;
+        return room_titles.join('');
     }
     getIssueBody() {
         const { players, creator, status, steps } = this.meta;
@@ -34185,7 +34211,7 @@ class TicTacToeRoom extends Room {
 class TicTacToeGame extends Game {
     async handleIssueOpenedEvent(payload) {
         const { title, user, number: issue_number, body: issue_body } = payload.issue;
-        const title_match = title.match(new RegExp(this.options.issue_title_pattern, 'ig'));
+        const title_match = title.match(new RegExp(src_input.ttt_issue_title_pattern, 'ig'));
         if (!title_match) {
             return;
         }
@@ -34253,23 +34279,18 @@ class TicTacToeGame extends Game {
 ;// CONCATENATED MODULE: ./src/games/index.ts
 
 
-;// CONCATENATED MODULE: ./package.json
-const package_namespaceObject = {"i8":"1.0.0"};
 ;// CONCATENATED MODULE: ./src/index.ts
 
 
 
 
 
-
 i18n_changeLanguage(src_input.language);
-const major_version = package_namespaceObject.i8.split('.')[0];
 const manager = new GameManager({});
 manager.addGame(new TicTacToeGame({
     name: i18n.t('games.ttt.name'),
     description: i18n.t('games.ttt.description'),
-    label: src_input.ttt_label_prefix + 'v' + major_version,
-    issue_title_pattern: src_input.ttt_issue_title_pattern
+    label: src_input.ttt_label,
 }));
 manager.handleAction().catch(catchError);
 process.on('unhandledRejection', catchError);
