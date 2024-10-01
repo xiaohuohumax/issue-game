@@ -33806,6 +33806,7 @@ class TicTacToeRoom extends Room {
                 login: issue.user.login,
                 url: issue.user.html_url,
                 issue_number: issue.number,
+                issue_url: issue.html_url
             },
             winner: null,
             create_time: new Date().toISOString(),
@@ -33928,7 +33929,7 @@ class TicTacToeRoom extends Room {
             .join(' `vs` ');
         const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(' ');
         const languages_line = LANGUAGES.map(c => `\`${c}\``).join(' ');
-        const creator_line = `[${creator.login}](${creator.url}) #${creator.issue_number}`;
+        const creator_line = `[${creator.login}](${creator.url}) [#${creator.issue_number}](${creator.issue_url})`;
         const body_lines = [
             `<!-- ${JSON.stringify(this.meta)} -->`,
             `## ${i18n.t('games.ttt.room.body.welcome')}`,
@@ -34191,7 +34192,7 @@ class TicTacToeRoom extends Room {
             this.meta.status = 'end';
             const call_all_players = this.meta.players
                 .filter(player => !player.robot)
-                .map(player => '@' + player.login).join(' ');
+                .map(player => `@[${player.login}](${player.url})`).join(' ');
             await issue.createComment({
                 issue_number,
                 body: i18n.t('games.ttt.reply.call_player_game_ended', {

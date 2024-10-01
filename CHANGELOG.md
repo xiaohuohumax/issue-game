@@ -1,5 +1,11 @@
 # issue-game
 
+## 1.3.0
+
+### Minor Changes
+
+- github 特有标记@和#添加链接
+
 ## 1.2.0
 
 ### Minor Changes

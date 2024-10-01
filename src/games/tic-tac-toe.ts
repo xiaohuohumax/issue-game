@@ -39,6 +39,7 @@ interface MetaCreator {
   login: string;
   url: string;
   issue_number: number;
+  issue_url: string;
 }
 
 type MetaWinner = MetaPlayer | null | 'tie';
@@ -205,6 +206,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
         login: issue.user.login,
         url: issue.user.html_url,
         issue_number: issue.number,
+        issue_url: issue.html_url
       },
       winner: null,
       create_time: new Date().toISOString(),
@@ -336,7 +338,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       .join(' `vs` ');
     const colors_line = CHESS_COLORS.map(c => `\`${c}\``).join(' ');
     const languages_line = LANGUAGES.map(c => `\`${c}\``).join(' ');
-    const creator_line = `[${creator.login}](${creator.url}) #${creator.issue_number}`;
+    const creator_line = `[${creator.login}](${creator.url}) [#${creator.issue_number}](${creator.issue_url})`;
 
     const body_lines: string[] = [
       `<!-- ${JSON.stringify(this.meta)} -->`,
@@ -667,7 +669,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
       this.meta.status = 'end';
       const call_all_players = this.meta.players
         .filter(player => !player.robot)
-        .map(player => '@' + player.login).join(' ');
+        .map(player => `@[${player.login}](${player.url})`).join(' ');
       await issue_api.createComment({
         issue_number,
         body: i18n.t('games.ttt.reply.call_player_game_ended', {
