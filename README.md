@@ -37,20 +37,23 @@ jobs:
 
       - name: Issue Game Action
         uses: xiaohuohumax/issue-game@v1
-          # with:
-          #   token: ${{ secrets.GITHUB_TOKEN }}
-          #   language: "en"
-          #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
-          #   ttt-label: "game-ttt-room"
-          #   ttt-room-title: "♟|{name}| {state}| {vs}| {result}"
+          with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            # language: "en"
+            # ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
+            # ttt-label: "game-ttt-room"
+            # ttt-room-title: "♟|{name}| {state}| {vs}| {result}"
+            # ttt-extra-labels: |
+            #   game-ttt
 ```
 
 ## ⚙ Parameters
 
-| Name                      | Type   | Description                                                                                       | Default Value                           |
-| ------------------------- | ------ | ------------------------------------------------------------------------------------------------- | --------------------------------------- |
-| `token`                   | string | GitHub token for authentication                                                                   | {{ github.token }}                      |
-| `language`                | string | Language for the game: `en`, `zh`                                                                 | "en"                                    |
-| `ttt-issue-title-pattern` | string | Tic-Tac-Toe game: regex for creating room Issue title                                             | "^play\\s+tic[-\_]?tac[-\_]?toe"        |
-| `ttt-label`               | string | Tic-Tac-Toe game: issue label name                                                                | "game-ttt-room"                         |
-| `ttt-room-title`          | string | Tic-Tac-Toe game: room title `{name}` `{state}` `{vs}` `{creator}` `{next}` `{winner}` `{result}` | "♟\|{name}\| {state}\| {vs}\| {result}" |
+| Name                      | Type     | Description                                                                                       | Default Value                           |
+| ------------------------- | -------- | ------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| `token`                   | string   | GitHub token for authentication                                                                   | {{ github.token }}                      |
+| `language`                | string   | Language for the game: `en`, `zh`                                                                 | "en"                                    |
+| `ttt-issue-title-pattern` | string   | Tic-Tac-Toe game: regex for creating room Issue title                                             | "^play\\s+tic[-\_]?tac[-\_]?toe"        |
+| `ttt-label`               | string   | Tic-Tac-Toe game: issue label name                                                                | "game-ttt-room"                         |
+| `ttt-room-title`          | string   | Tic-Tac-Toe game: room title `{name}` `{state}` `{vs}` `{creator}` `{next}` `{winner}` `{result}` | "♟\|{name}\| {state}\| {vs}\| {result}" |
+| `ttt-extra-labels`        | string[] | Tic-Tac-Toe game: extra issue labelsIssue                                                         | "game-ttt"                              |

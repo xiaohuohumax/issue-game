@@ -6,6 +6,7 @@ export interface Input {
   ttt_issue_title_pattern: string;
   ttt_label: string;
   ttt_room_title: string;
+  ttt_extra_labels: string[];
 }
 
 const input: Input = {
@@ -13,7 +14,8 @@ const input: Input = {
   language: core.getInput('language', { required: true }),
   ttt_issue_title_pattern: core.getInput('ttt-issue-title-pattern', { required: true }),
   ttt_label: core.getInput('ttt-label', { required: true }),
-  ttt_room_title: core.getInput('ttt-room-title', { required: true })
+  ttt_room_title: core.getInput('ttt-room-title', { required: true }),
+  ttt_extra_labels: core.getMultilineInput('ttt-extra-labels', { required: false })
 };
 
 export default input;

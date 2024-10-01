@@ -43,14 +43,17 @@ jobs:
           #   ttt-issue-title-pattern: "^play\\s+tic[-_]?tac[-_]?toe"
           #   ttt-label: "game-ttt-room"
           #   ttt-room-title: "♟|{name}| {state}| {vs}| {result}"
+          #   ttt-extra-labels: |
+          #     game-ttt
 ```
 
 ## ⚙ 使用参数
 
-| 名称                      | 类型   | 说明                                                                                      | 默认值                                  |
-| ------------------------- | ------ | ----------------------------------------------------------------------------------------- | --------------------------------------- |
-| `token`                   | string | 用于身份验证的 GitHub 令牌                                                                | {{ github.token }}                      |
-| `language`                | string | 游戏语言：`en`，`zh`                                                                      | `en`                                    |
-| `ttt-issue-title-pattern` | string | 井字棋游戏：创建房间 Issue 标题正则                                                       | "^play\\s+tic[-\_]?tac[-\_]?toe"        |
-| `ttt-label`               | string | 井字棋游戏：issue 标签名称                                                                | "game-ttt-room"                         |
-| `ttt-room-title`          | string | 井字棋游戏：房间标题 `{name}` `{state}` `{vs}` `{creator}` `{next}` `{winner}` `{result}` | "♟\|{name}\| {state}\| {vs}\| {result}" |
+| 名称                      | 类型     | 说明                                                                                      | 默认值                                  |
+| ------------------------- | -------- | ----------------------------------------------------------------------------------------- | --------------------------------------- |
+| `token`                   | string   | 用于身份验证的 GitHub 令牌                                                                | {{ github.token }}                      |
+| `language`                | string   | 游戏语言：`en`，`zh`                                                                      | `en`                                    |
+| `ttt-issue-title-pattern` | string   | 井字棋游戏：创建房间 Issue 标题正则                                                       | "^play\\s+tic[-\_]?tac[-\_]?toe"        |
+| `ttt-label`               | string   | 井字棋游戏：issue 标签名称                                                                | "game-ttt-room"                         |
+| `ttt-room-title`          | string   | 井字棋游戏：房间标题 `{name}` `{state}` `{vs}` `{creator}` `{next}` `{winner}` `{result}` | "♟\|{name}\| {state}\| {vs}\| {result}" |
+| `ttt-extra-labels`        | string[] | 井字棋游戏：额外的 issue 标签名 labelsIssue                                               | "game-ttt"                              |

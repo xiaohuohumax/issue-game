@@ -13,6 +13,7 @@ manager.addGame(
     name: i18n.t('games.ttt.name'),
     description: i18n.t('games.ttt.description'),
     label: input.ttt_label,
+    extra_labels: input.ttt_extra_labels,
   })
 );
 

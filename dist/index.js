@@ -31187,7 +31187,8 @@ const input = {
     language: core.getInput('language', { required: true }),
     ttt_issue_title_pattern: core.getInput('ttt-issue-title-pattern', { required: true }),
     ttt_label: core.getInput('ttt-label', { required: true }),
-    ttt_room_title: core.getInput('ttt-room-title', { required: true })
+    ttt_room_title: core.getInput('ttt-room-title', { required: true }),
+    ttt_extra_labels: core.getMultilineInput('ttt-extra-labels', { required: false })
 };
 /* harmony default export */ const src_input = (input);
 
@@ -34235,7 +34236,7 @@ class TicTacToeGame extends Game {
         const game_issue = await issue.createIssue({
             title: room.getIssueTitle(),
             body: room.getIssueBody(),
-            labels: [this.options.label]
+            labels: [this.options.label, ...this.options.extra_labels]
         });
         await issue.createComment({
             issue_number,
@@ -34295,6 +34296,7 @@ manager.addGame(new TicTacToeGame({
     name: i18n.t('games.ttt.name'),
     description: i18n.t('games.ttt.description'),
     label: src_input.ttt_label,
+    extra_labels: src_input.ttt_extra_labels,
 }));
 manager.handleAction().catch(catchError);
 process.on('unhandledRejection', catchError);

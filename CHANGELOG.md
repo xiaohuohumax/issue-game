@@ -1,5 +1,11 @@
 # issue-game
 
+## 1.4.0
+
+### Minor Changes
+
+- 游戏新增添加额外标签的功能
+
 ## 1.3.0
 
 ### Minor Changes

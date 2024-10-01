@@ -19,6 +19,11 @@ inputs:
     required: false
     description: "Tic-Tac-Toe game: issue label name"
     default: "game-ttt-room"
+  ttt-extra-labels:
+    required: false
+    description: "Tic-Tac-Toe game: extra issue labels"
+    default: |
+      game-ttt
   ttt-room-title:
     required: false
     description: "Tic-Tac-Toe game: room title"

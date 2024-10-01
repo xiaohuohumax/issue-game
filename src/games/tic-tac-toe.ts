@@ -694,6 +694,7 @@ export class TicTacToeRoom extends Room<TicTacToeMeta, TicTacToeRoomOptions> {
 
 export interface TicTacToeGameOptions extends GameOptions {
   label: string;
+  extra_labels: string[];
 }
 
 export class TicTacToeGame extends Game<TicTacToeGameOptions> {
@@ -723,7 +724,7 @@ export class TicTacToeGame extends Game<TicTacToeGameOptions> {
     const game_issue = await issue_api.createIssue({
       title: room.getIssueTitle(),
       body: room.getIssueBody(),
-      labels: [this.options.label]
+      labels: [this.options.label, ...this.options.extra_labels]
     });
 
     await issue_api.createComment({
