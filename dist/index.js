@@ -33893,8 +33893,11 @@ class TicTacToeRoom extends Room {
                     : '';
             },
             'creator': () => this.meta.creator.login,
-            'winner': () => this.meta.winner
+            'result': () => this.isGameEnded()
                 ? this.getWinnerPrintInfo()
+                : '',
+            'winner': () => this.meta.winner && typeof this.meta.winner !== 'string'
+                ? `${this.meta.winner.login} ${ROBOT_EMOJI}`
                 : '',
         };
         const room_titles = [];

@@ -28,7 +28,8 @@ inputs:
     # {creator} room creator name: player_name
     # {next} next player name: player_name
     # {winner} winner name: player_name
-    default: "♟|{name}| {state}| {vs}| {winner}"
+    # {result} game result: player wins | tie
+    default: "♟|{name}| {state}| {vs}| {result}"
 
 runs:
   using: "node20"
